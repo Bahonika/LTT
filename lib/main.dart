@@ -1,13 +1,26 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
 import 'package:menu_bar/menu_bar.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'generated/codegen_loader.g.dart';
+import 'generated/locale_keys.g.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+  runApp(
+    EasyLocalization(
+        supportedLocales: [const Locale('en'), const Locale('ru')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('ru'),
+        assetLoader: const CodegenLoader(),
+        child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,6 +30,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'We are on display',
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
@@ -201,7 +217,7 @@ class _HomeState extends State<Home> {
       ),
       barButtons: [
         BarButton(
-          text: const Text('Файл'),
+          text: Text(LocaleKeys.file.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
@@ -219,11 +235,11 @@ class _HomeState extends State<Home> {
               MenuButton(
                 onTap: () {
                   print(file?.path);
-                   if (file != null) {
-                     save();
-                   } else {
-                     saveAs();
-                   }
+                  if (file != null) {
+                    save();
+                  } else {
+                    saveAs();
+                  }
                 },
                 text: const Text('Сохранить'),
               ),
@@ -308,22 +324,39 @@ class _HomeState extends State<Home> {
         ),
       ],
       child: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.all(20),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: TextField(
-            controller: controller,
-            textInputAction: TextInputAction.none,
-            maxLines: null,
-            minLines: 1,
-            decoration: const InputDecoration.collapsed(
-              hintText: '',
+        body: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(20),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: TextField(
+                controller: controller,
+                textInputAction: TextInputAction.none,
+                maxLines: null,
+                minLines: 1,
+                decoration: const InputDecoration.collapsed(
+                  hintText: '',
+                ),
+                autofocus: true,
+                showCursor: true,
+                focusNode: focusNode,
+              ),
             ),
-            autofocus: true,
-            showCursor: true,
-            focusNode: focusNode,
-          ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: TextButton(
+                child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
+                onPressed: () {
+                  if (context.locale == Locale('ru')) {
+                    context.setLocale(Locale('en'));
+                  } else {
+                    context.setLocale(Locale('ru'));
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
