@@ -118,14 +118,14 @@ class _HomeState extends State<Home> {
                 TextFormField(
                   maxLines: null,
                   controller: finder,
-                  decoration: const InputDecoration(hintText: 'Что найти?'),
+                  decoration: InputDecoration(hintText: LocaleKeys.what_to_find.tr()),
                 ),
                 if (replace)
                   TextFormField(
                     maxLines: null,
                     controller: replacer,
                     decoration:
-                        const InputDecoration(hintText: 'На что заменить?'),
+                         InputDecoration(hintText: LocaleKeys.what_to_replace.tr()),
                   ),
               ],
             ),
@@ -134,7 +134,7 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text(replace ? 'Заменить' : 'Найти'),
+                child: Text(replace ? LocaleKeys.replace.tr() : LocaleKeys.find.tr()),
               ),
             ],
           );
@@ -222,15 +222,15 @@ class _HomeState extends State<Home> {
             menuItems: [
               MenuButton(
                 onTap: () => create(),
-                text: const Text('Новый'),
+                text:  Text(LocaleKeys.new_1.tr()),
               ),
               MenuButton(
                 onTap: () => open(),
-                text: const Text('Открыть'),
+                text: Text(LocaleKeys.open.tr()),
               ),
               MenuButton(
                 onTap: () => create(),
-                text: const Text('Закрыть'),
+                text: Text(LocaleKeys.close.tr()),
               ),
               MenuButton(
                 onTap: () {
@@ -241,83 +241,83 @@ class _HomeState extends State<Home> {
                     saveAs();
                   }
                 },
-                text: const Text('Сохранить'),
+                text: Text(LocaleKeys.save.tr()),
               ),
               MenuButton(
                 onTap: () => saveAs(),
-                text: const Text('Сохранить как'),
+                text: Text(LocaleKeys.save_as.tr()),
               ),
               MenuButton(
                 onTap: () => breakApp(),
-                text: const Text('Выход'),
+                text: Text(LocaleKeys.exit.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Правка'),
+          text: Text(LocaleKeys.edit.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => select(),
-                text: const Text('Выделить все'),
+                text: Text(LocaleKeys.select_all.tr()),
               ),
               MenuButton(
                 onTap: () => cut(),
-                text: const Text('Вырезать'),
+                text: Text(LocaleKeys.cut.tr()),
               ),
               MenuButton(
                 onTap: () => copy(),
-                text: const Text('Копировать'),
+                text: Text(LocaleKeys.copy.tr()),
               ),
               MenuButton(
                 onTap: () => insert(),
-                text: const Text('Вставить'),
+                text: Text(LocaleKeys.paste.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Вид'),
+          text: Text(LocaleKeys.view.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => open(),
-                text: const Text('Шрифт'),
+                text: Text(LocaleKeys.font.tr()),
               ),
               MenuButton(
                 onTap: () => open(),
-                text: const Text('Тема оформления'),
+                text: Text(LocaleKeys.design_theme.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Поиск'),
+          text: Text(LocaleKeys.search.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => find(),
-                text: const Text('Найти'),
+                text: Text(LocaleKeys.find.tr()),
               ),
               MenuButton(
                 onTap: () => find(replace: true),
-                text: const Text('Заменить'),
+                text: Text(LocaleKeys.replace.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Справка'),
+          text: Text(LocaleKeys.help.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => open(),
-                text: const Text('Справка'),
+                text: Text(LocaleKeys.reference.tr()),
               ),
               MenuButton(
                 onTap: () => open(),
-                text: const Text('О программе'),
+                text: Text(LocaleKeys.about_program.tr()),
               ),
             ],
           ),
