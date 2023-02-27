@@ -11,6 +11,7 @@ import 'package:highlight/highlight.dart';
 import 'package:highlight/languages/java.dart';
 import 'package:highlight/languages/dart.dart';
 import 'package:highlight/languages/python.dart';
+import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
 
 import 'generated/codegen_loader.g.dart';
@@ -21,7 +22,7 @@ void main() async {
   await EasyLocalization.ensureInitialized();
   runApp(
     EasyLocalization(
-        supportedLocales: [const Locale('en'), const Locale('ru')],
+        supportedLocales: const [Locale('en'), Locale('ru')],
         path: 'assets/translations',
         fallbackLocale: const Locale('ru'),
         assetLoader: const CodegenLoader(),
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'We are on display',
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
       ),
       debugShowCheckedModeBanner: false,
-      home: Home(),
+      home: const Home(),
     );
   }
 }
@@ -70,7 +71,7 @@ Mode langMapper(String lang) {
 
 class _HomeState extends State<Home> {
   final TextEditingController controller = TextEditingController();
-  Mode mode = dart;
+  Mode mode = ada;
 
   late final CodeController codeController = CodeController(
     language: mode,
@@ -78,11 +79,12 @@ class _HomeState extends State<Home> {
       r"\B#[a-zA-Z0-9]+\b": const TextStyle(color: Colors.red),
       r"\B@[a-zA-Z0-9]+\b": const TextStyle(
         fontWeight: FontWeight.w800,
-        color: Colors.blue,
+        color: Colors.green,
       ),
       r"\B![a-zA-Z0-9]+\b":
           const TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
     },
+    stringMap: monoBlueTheme,
     text: controller.text,
   );
 
@@ -93,10 +95,19 @@ class _HomeState extends State<Home> {
   bool highlight = false;
   String fileS = '';
 
-  void toggle(bool value) {
-    setState(() {
-      highlight = value;
-    });
+  void toggle(Mode val) {
+    if (mode == val) {
+      highlight = false;
+      mode = ada;
+    } else {
+      highlight = true;
+      mode = val;
+    }
+    codeController.language = mode;
+    // codeController.stringMap?.addAll({
+    //   "void": TextStyle(color: Colors.red)
+    // });
+    setState(() {});
   }
 
   @override
@@ -157,14 +168,15 @@ class _HomeState extends State<Home> {
                 TextFormField(
                   maxLines: null,
                   controller: finder,
-                  decoration: InputDecoration(hintText: LocaleKeys.what_to_find.tr()),
+                  decoration:
+                      InputDecoration(hintText: LocaleKeys.what_to_find.tr()),
                 ),
                 if (replace)
                   TextFormField(
                     maxLines: null,
                     controller: replacer,
-                    decoration:
-                         InputDecoration(hintText: LocaleKeys.what_to_replace.tr()),
+                    decoration: InputDecoration(
+                        hintText: LocaleKeys.what_to_replace.tr()),
                   ),
               ],
             ),
@@ -173,7 +185,8 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text(replace ? LocaleKeys.replace.tr() : LocaleKeys.find.tr()),
+                child: Text(
+                    replace ? LocaleKeys.replace.tr() : LocaleKeys.find.tr()),
               ),
             ],
           );
@@ -261,7 +274,7 @@ class _HomeState extends State<Home> {
             menuItems: [
               MenuButton(
                 onTap: () => create(),
-                text:  Text(LocaleKeys.new_1.tr()),
+                text: Text(LocaleKeys.new_1.tr()),
               ),
               MenuButton(
                 onTap: () => open(),
@@ -325,17 +338,16 @@ class _HomeState extends State<Home> {
                 text: Text(LocaleKeys.font.tr()),
               ),
               MenuButton(
-                onTap: () => open(),
-                text: Text(LocaleKeys.design_theme.tr()),
-                submenu: SubMenu(
-                  menuItems: [
-                    MenuButton(
-                      onTap: () => open(),
-                      text: const Text('Шрифт'),
-                    ),
-                  ],
-                )
-              ),
+                  onTap: () => open(),
+                  text: Text(LocaleKeys.design_theme.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => open(),
+                        text: const Text('Шрифт'),
+                      ),
+                    ],
+                  )),
             ],
           ),
         ),
@@ -374,30 +386,33 @@ class _HomeState extends State<Home> {
           submenu: SubMenu(
             menuItems: [
               MenuButton(
-                onTap: () {
-                  toggle(!highlight);
-                  mode = dart;
-                },
-                text: const Text(
+                onTap: () => toggle(dart),
+                text: Text(
                   'dart',
+                  style: TextStyle(
+                    fontWeight:
+                        mode == dart ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
               ),
               MenuButton(
-                onTap: () {
-                  toggle(!highlight);
-                  mode = java;
-                },
-                text: const Text(
+                onTap: () => toggle(java),
+                text: Text(
                   'java',
+                  style: TextStyle(
+                    fontWeight:
+                        mode == java ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
               ),
               MenuButton(
-                onTap: () {
-                  toggle(!highlight);
-                  mode = python;
-                },
-                text: const Text(
+                onTap: () => toggle(python),
+                text: Text(
                   'python',
+                  style: TextStyle(
+                    fontWeight:
+                        mode == python ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
               ),
             ],
@@ -408,40 +423,46 @@ class _HomeState extends State<Home> {
         body: Stack(
           children: [
             highlight
-                ? CodeTheme(
-              data: const CodeThemeData(styles: monoBlueTheme),
-              child: CodeField(
-                controller: codeController,
-                focusNode: focusNode,
-                maxLines: null,
-                minLines: 1,
-                textStyle: const TextStyle(fontFamily: 'SourceCode'),
-                onChanged: (str) {
-                  controller.text = codeController.text;
-                },
-                background: Colors.white24,
-              ),
-            )
+                ? SingleChildScrollView(
+                    child: CodeTheme(
+                      data: const CodeThemeData(styles: monoBlueTheme),
+                      child: CodeField(
+                        controller: codeController,
+                        focusNode: focusNode,
+                        maxLines: null,
+                        minLines: 1,
+                        horizontalScroll: true,
+                        isDense: true,
+                        textStyle: const TextStyle(fontFamily: 'SourceCode'),
+                        onChanged: (str) {
+                          controller.text = codeController.text;
+                        },
+                        background: Colors.white24,
+                      ),
+                    ),
+                  )
                 : Container(
-              margin: const EdgeInsets.all(20),
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: TextField(
-                controller: controller,
-                textInputAction: TextInputAction.none,
-                maxLines: null,
-                onChanged: (str) {
-                  codeController.text = controller.text;
-                },
-                minLines: 1,
-                decoration: const InputDecoration.collapsed(
-                  hintText: '',
-                ),
-                autofocus: true,
-                showCursor: true,
-                focusNode: focusNode,
-              ),
-            ),
+                    margin: const EdgeInsets.all(20),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: SingleChildScrollView(
+                      child: TextField(
+                        controller: controller,
+                        textInputAction: TextInputAction.none,
+                        maxLines: null,
+                        maxLength: null,
+                        onChanged: (str) {
+                          codeController.text = controller.text;
+                        },
+                        decoration: const InputDecoration.collapsed(
+                          hintText: '',
+                        ),
+                        autofocus: true,
+                        showCursor: true,
+                        focusNode: focusNode,
+                      ),
+                    ),
+                  ),
             Align(
               alignment: Alignment.bottomRight,
               child: TextButton(
