@@ -1,9 +1,15 @@
 import 'dart:io';
 
+import 'package:code_text_field/code_text_field.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
+import 'package:flutter_highlight/themes/mono-blue.dart';
+import 'package:highlight/highlight.dart';
+import 'package:highlight/languages/java.dart';
+import 'package:highlight/languages/dart.dart';
+import 'package:highlight/languages/python.dart';
 import 'package:menu_bar/menu_bar.dart';
 
 void main() {
@@ -15,13 +21,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'We are on display',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
       debugShowCheckedModeBanner: false,
-      home: const Home(),
+      home: Home(),
     );
   }
 }
@@ -33,13 +36,49 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
+Mode langMapper(String lang) {
+  switch (lang) {
+    case 'dart':
+      return dart;
+    case 'java':
+      return java;
+    case 'python':
+      return python;
+    default:
+      return dart;
+  }
+}
+
 class _HomeState extends State<Home> {
   final TextEditingController controller = TextEditingController();
+  Mode mode = dart;
+
+  late final CodeController codeController = CodeController(
+    language: mode,
+    patternMap: {
+      r"\B#[a-zA-Z0-9]+\b": const TextStyle(color: Colors.red),
+      r"\B@[a-zA-Z0-9]+\b": const TextStyle(
+        fontWeight: FontWeight.w800,
+        color: Colors.blue,
+      ),
+      r"\B![a-zA-Z0-9]+\b":
+          const TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
+    },
+    text: controller.text,
+  );
+
   final FocusNode focusNode = FocusNode();
   late FilePickerResult? result;
   File? file;
 
+  bool highlight = false;
   String fileS = '';
+
+  void toggle(bool value) {
+    setState(() {
+      highlight = value;
+    });
+  }
 
   @override
   void initState() {
@@ -60,16 +99,13 @@ class _HomeState extends State<Home> {
       file = File(result.files.first.path ?? '');
       controller.text = file!.readAsStringSync();
     }
-    print(file?.path);
   }
 
   Future<void> save() async {
-    print(file?.path);
     file!.writeAsStringSync(controller.text);
   }
 
   Future<void> saveAs() async {
-    print(this.file?.path);
     final file = this.file;
     final temp = await FilePicker.platform.saveFile(
       initialDirectory: file?.path,
@@ -219,11 +255,11 @@ class _HomeState extends State<Home> {
               MenuButton(
                 onTap: () {
                   print(file?.path);
-                   if (file != null) {
-                     save();
-                   } else {
-                     saveAs();
-                   }
+                  if (file != null) {
+                    save();
+                  } else {
+                    saveAs();
+                  }
                 },
                 text: const Text('Сохранить'),
               ),
@@ -272,6 +308,14 @@ class _HomeState extends State<Home> {
               MenuButton(
                 onTap: () => open(),
                 text: const Text('Тема оформления'),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => open(),
+                      text: const Text('Шрифт'),
+                    ),
+                  ],
+                )
               ),
             ],
           ),
@@ -306,25 +350,77 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
-      ],
-      child: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.all(20),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: TextField(
-            controller: controller,
-            textInputAction: TextInputAction.none,
-            maxLines: null,
-            minLines: 1,
-            decoration: const InputDecoration.collapsed(
-              hintText: '',
-            ),
-            autofocus: true,
-            showCursor: true,
-            focusNode: focusNode,
+        BarButton(
+          text: const Text('Подсветка кода'),
+          submenu: SubMenu(
+            menuItems: [
+              MenuButton(
+                onTap: () {
+                  toggle(!highlight);
+                  mode = dart;
+                },
+                text: const Text(
+                  'dart',
+                ),
+              ),
+              MenuButton(
+                onTap: () {
+                  toggle(!highlight);
+                  mode = java;
+                },
+                text: const Text(
+                  'java',
+                ),
+              ),
+              MenuButton(
+                onTap: () {
+                  toggle(!highlight);
+                  mode = python;
+                },
+                text: const Text(
+                  'python',
+                ),
+              ),
+            ],
           ),
         ),
+      ],
+      child: Scaffold(
+        body: highlight
+            ? CodeTheme(
+                data: const CodeThemeData(styles: monoBlueTheme),
+                child: CodeField(
+                  controller: codeController,
+                  focusNode: focusNode,
+                  maxLines: null,
+                  minLines: 1,
+                  textStyle: const TextStyle(fontFamily: 'SourceCode'),
+                  onChanged: (str) {
+                    controller.text = codeController.text;
+                  },
+                  background: Colors.white24,
+                ),
+              )
+            : Container(
+                margin: const EdgeInsets.all(20),
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: TextField(
+                  controller: controller,
+                  textInputAction: TextInputAction.none,
+                  maxLines: null,
+                  onChanged: (str) {
+                    codeController.text = controller.text;
+                  },
+                  minLines: 1,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: '',
+                  ),
+                  autofocus: true,
+                  showCursor: true,
+                  focusNode: focusNode,
+                ),
+              ),
       ),
     );
   }
