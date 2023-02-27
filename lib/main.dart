@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -146,6 +147,26 @@ class _HomeState extends State<Home> {
     focusNode.requestFocus();
   }
 
+  Future<void> style({
+    bool replace = false,
+  }) async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context)
+        {
+         return SimpleDialog(
+           contentPadding: const EdgeInsets.all(8),
+           insetPadding: const EdgeInsets.all(8),
+
+         );
+        }
+
+        );
+    focusNode.requestFocus();
+  }
+
+
+
   Future<void> insert() async {
     final offset = controller.selection.start;
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -266,12 +287,27 @@ class _HomeState extends State<Home> {
           submenu: SubMenu(
             menuItems: [
               MenuButton(
-                onTap: () => open(),
+                onTap: () => style(),
                 text: const Text('Шрифт'),
               ),
               MenuButton(
-                onTap: () => open(),
+                onTap: () => null,
                 text: const Text('Тема оформления'),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                        onTap: () => open(),
+                        text: const Text('Светлая тема')
+                    ),
+                    MenuButton(
+                        onTap: () => open(),
+                        text: const Text('Тёмная тема')
+                    ),
+                    MenuButton(
+                        onTap: () => open(),
+                        text: const Text('Яркая тема')
+                    ),
+                  ],)
               ),
             ],
           ),
