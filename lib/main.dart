@@ -18,7 +18,6 @@ import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
 import 'package:intl/intl.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
@@ -74,6 +73,25 @@ Mode langMapper(String lang) {
 class _HomeState extends State<Home> {
   final TextEditingController controller = TextEditingController();
   Mode mode = ada;
+  int rowNumber = 0;
+
+  void listen() {
+    rowNumber = '\n'
+            .allMatches(
+                controller.text.substring(0, controller.selection.baseOffset))
+            .length +
+        1;
+    setState(() {});
+  }
+
+  void codeListen() {
+    rowNumber = '\n'
+            .allMatches(codeController.text
+                .substring(0, codeController.selection.baseOffset))
+            .length +
+        1;
+    setState(() {});
+  }
 
   late final CodeController codeController = CodeController(
     language: mode,
@@ -115,7 +133,15 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    controller.addListener(listen);
+    codeController.addListener(codeListen);
     FlutterFileView.init();
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(listen);
+    super.dispose();
   }
 
   void create() {
@@ -259,7 +285,6 @@ class _HomeState extends State<Home> {
         TextSelection(baseOffset: 0, extentOffset: controller.text.length);
     focusNode.requestFocus();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -467,20 +492,30 @@ class _HomeState extends State<Home> {
                     ),
                   ),
             Align(
-                alignment: Alignment.bottomLeft,
-                child: ClockWidget(),
-            ),
-            Align(
               alignment: Alignment.bottomRight,
-              child: TextButton(
-                child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
-                onPressed: () {
-                  if (context.locale == Locale('ru')) {
-                    context.setLocale(Locale('en'));
-                  } else {
-                    context.setLocale(Locale('ru'));
-                  }
-                },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text('текущая строка:'),
+                  Text(
+                    '$rowNumber',
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  const ClockWidget(),
+                  TextButton(
+                    child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
+                    onPressed: () {
+                      if (context.locale == Locale('ru')) {
+                        context.setLocale(Locale('en'));
+                      } else {
+                        context.setLocale(Locale('ru'));
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -489,6 +524,7 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
 class ClockWidget extends StatelessWidget {
   const ClockWidget({super.key});
 
