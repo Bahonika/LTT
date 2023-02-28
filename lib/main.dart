@@ -215,9 +215,7 @@ class _HomeState extends State<Home> {
     focusNode.requestFocus();
   }
 
-  Future<void> style({
-    bool replace = false,
-  }) async {
+  Future<void> style() async {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
