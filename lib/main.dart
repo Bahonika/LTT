@@ -220,20 +220,15 @@ class _HomeState extends State<Home> {
   }) async {
     await showDialog(
         context: context,
-        builder: (BuildContext context)
-        {
-         return SimpleDialog(
-           contentPadding: const EdgeInsets.all(8),
-           insetPadding: const EdgeInsets.all(8),
-
-         );
-        }
-
-        );
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            contentPadding: const EdgeInsets.all(8),
+            insetPadding: const EdgeInsets.all(8),
+            title: Row(),
+          );
+        });
     focusNode.requestFocus();
   }
-
-
 
   Future<void> insert() async {
     final offset = controller.selection.start;
@@ -364,26 +359,14 @@ class _HomeState extends State<Home> {
                   submenu: SubMenu(
                     menuItems: [
                       MenuButton(
-                        onTap: () => null,
-                        text: const Text('Шрифт'),
-                      ),
+                          onTap: () => open(),
+                          text: const Text('Светлая тема')),
+                      MenuButton(
+                          onTap: () => open(), text: const Text('Тёмная тема')),
+                      MenuButton(
+                          onTap: () => open(), text: const Text('Яркая тема')),
                     ],
-                submenu: SubMenu(
-                  menuItems: [
-                    MenuButton(
-                        onTap: () => open(),
-                        text: const Text('Светлая тема')
-                    ),
-                    MenuButton(
-                        onTap: () => open(),
-                        text: const Text('Тёмная тема')
-                    ),
-                    MenuButton(
-                        onTap: () => open(),
-                        text: const Text('Яркая тема')
-                    ),
-                  ],)
-              )),
+                  ))
             ],
           ),
         ),
