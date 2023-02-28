@@ -1,14 +1,34 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:code_text_field/code_text_field.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
+import 'package:flutter_highlight/themes/mono-blue.dart';
+import 'package:highlight/highlight.dart';
+import 'package:highlight/languages/java.dart';
+import 'package:highlight/languages/dart.dart';
+import 'package:highlight/languages/python.dart';
+import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'generated/codegen_loader.g.dart';
+import 'generated/locale_keys.g.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+  runApp(
+    EasyLocalization(
+        supportedLocales: const [Locale('en'), Locale('ru')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('ru'),
+        assetLoader: const CodegenLoader(),
+        child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -18,6 +38,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'We are on display',
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
@@ -34,13 +57,59 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
+Mode langMapper(String lang) {
+  switch (lang) {
+    case 'dart':
+      return dart;
+    case 'java':
+      return java;
+    case 'python':
+      return python;
+    default:
+      return dart;
+  }
+}
+
 class _HomeState extends State<Home> {
   final TextEditingController controller = TextEditingController();
+  Mode mode = ada;
+
+  late final CodeController codeController = CodeController(
+    language: mode,
+    patternMap: {
+      r"\B#[a-zA-Z0-9]+\b": const TextStyle(color: Colors.red),
+      r"\B@[a-zA-Z0-9]+\b": const TextStyle(
+        fontWeight: FontWeight.w800,
+        color: Colors.green,
+      ),
+      r"\B![a-zA-Z0-9]+\b":
+          const TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
+    },
+    stringMap: monoBlueTheme,
+    text: controller.text,
+  );
+
   final FocusNode focusNode = FocusNode();
   late FilePickerResult? result;
   File? file;
 
+  bool highlight = false;
   String fileS = '';
+
+  void toggle(Mode val) {
+    if (mode == val) {
+      highlight = false;
+      mode = ada;
+    } else {
+      highlight = true;
+      mode = val;
+    }
+    codeController.language = mode;
+    // codeController.stringMap?.addAll({
+    //   "void": TextStyle(color: Colors.red)
+    // });
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -61,16 +130,13 @@ class _HomeState extends State<Home> {
       file = File(result.files.first.path ?? '');
       controller.text = file!.readAsStringSync();
     }
-    print(file?.path);
   }
 
   Future<void> save() async {
-    print(file?.path);
     file!.writeAsStringSync(controller.text);
   }
 
   Future<void> saveAs() async {
-    print(this.file?.path);
     final file = this.file;
     final temp = await FilePicker.platform.saveFile(
       initialDirectory: file?.path,
@@ -103,14 +169,15 @@ class _HomeState extends State<Home> {
                 TextFormField(
                   maxLines: null,
                   controller: finder,
-                  decoration: const InputDecoration(hintText: 'Что найти?'),
+                  decoration:
+                      InputDecoration(hintText: LocaleKeys.what_to_find.tr()),
                 ),
                 if (replace)
                   TextFormField(
                     maxLines: null,
                     controller: replacer,
-                    decoration:
-                        const InputDecoration(hintText: 'На что заменить?'),
+                    decoration: InputDecoration(
+                        hintText: LocaleKeys.what_to_replace.tr()),
                   ),
               ],
             ),
@@ -119,7 +186,8 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text(replace ? 'Заменить' : 'Найти'),
+                child: Text(
+                    replace ? LocaleKeys.replace.tr() : LocaleKeys.find.tr()),
               ),
             ],
           );
@@ -222,77 +290,84 @@ class _HomeState extends State<Home> {
       ),
       barButtons: [
         BarButton(
-          text: const Text('Файл'),
+          text: Text(LocaleKeys.file.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => create(),
-                text: const Text('Новый'),
+                text: Text(LocaleKeys.new_1.tr()),
               ),
               MenuButton(
                 onTap: () => open(),
-                text: const Text('Открыть'),
+                text: Text(LocaleKeys.open.tr()),
               ),
               MenuButton(
                 onTap: () => create(),
-                text: const Text('Закрыть'),
+                text: Text(LocaleKeys.close.tr()),
               ),
               MenuButton(
                 onTap: () {
                   print(file?.path);
-                   if (file != null) {
-                     save();
-                   } else {
-                     saveAs();
-                   }
+                  if (file != null) {
+                    save();
+                  } else {
+                    saveAs();
+                  }
                 },
-                text: const Text('Сохранить'),
+                text: Text(LocaleKeys.save.tr()),
               ),
               MenuButton(
                 onTap: () => saveAs(),
-                text: const Text('Сохранить как'),
+                text: Text(LocaleKeys.save_as.tr()),
               ),
               MenuButton(
                 onTap: () => breakApp(),
-                text: const Text('Выход'),
+                text: Text(LocaleKeys.exit.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Правка'),
+          text: Text(LocaleKeys.edit.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => select(),
-                text: const Text('Выделить все'),
+                text: Text(LocaleKeys.select_all.tr()),
               ),
               MenuButton(
                 onTap: () => cut(),
-                text: const Text('Вырезать'),
+                text: Text(LocaleKeys.cut.tr()),
               ),
               MenuButton(
                 onTap: () => copy(),
-                text: const Text('Копировать'),
+                text: Text(LocaleKeys.copy.tr()),
               ),
               MenuButton(
                 onTap: () => insert(),
-                text: const Text('Вставить'),
+                text: Text(LocaleKeys.paste.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Вид'),
+          text: Text(LocaleKeys.view.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => style(),
-                text: const Text('Шрифт'),
+                text: Text(LocaleKeys.font.tr()),
               ),
               MenuButton(
-                onTap: () => null,
-                text: const Text('Тема оформления'),
+                  onTap: () => open(),
+                  text: Text(LocaleKeys.design_theme.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => null,
+                        text: const Text('Шрифт'),
+                      ),
+                    ],
                 submenu: SubMenu(
                   menuItems: [
                     MenuButton(
@@ -308,58 +383,136 @@ class _HomeState extends State<Home> {
                         text: const Text('Яркая тема')
                     ),
                   ],)
-              ),
+              )),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Поиск'),
+          text: Text(LocaleKeys.search.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => find(),
-                text: const Text('Найти'),
+                text: Text(LocaleKeys.find.tr()),
               ),
               MenuButton(
                 onTap: () => find(replace: true),
-                text: const Text('Заменить'),
+                text: Text(LocaleKeys.replace.tr()),
               ),
             ],
           ),
         ),
         BarButton(
-          text: const Text('Справка'),
+          text: Text(LocaleKeys.help.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
                 onTap: () => open(),
-                text: const Text('Справка'),
+                text: Text(LocaleKeys.reference.tr()),
               ),
               MenuButton(
                 onTap: () => open(),
-                text: const Text('О программе'),
+                text: Text(LocaleKeys.about_program.tr()),
+              ),
+            ],
+          ),
+        ),
+        BarButton(
+          text: const Text('Подсветка кода'),
+          submenu: SubMenu(
+            menuItems: [
+              MenuButton(
+                onTap: () => toggle(dart),
+                text: Text(
+                  'dart',
+                  style: TextStyle(
+                    fontWeight:
+                        mode == dart ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ),
+              MenuButton(
+                onTap: () => toggle(java),
+                text: Text(
+                  'java',
+                  style: TextStyle(
+                    fontWeight:
+                        mode == java ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+              ),
+              MenuButton(
+                onTap: () => toggle(python),
+                text: Text(
+                  'python',
+                  style: TextStyle(
+                    fontWeight:
+                        mode == python ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ],
       child: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.all(20),
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: TextField(
-            controller: controller,
-            textInputAction: TextInputAction.none,
-            maxLines: null,
-            minLines: 1,
-            decoration: const InputDecoration.collapsed(
-              hintText: '',
+        body: Stack(
+          children: [
+            highlight
+                ? SingleChildScrollView(
+                    child: CodeTheme(
+                      data: const CodeThemeData(styles: monoBlueTheme),
+                      child: CodeField(
+                        controller: codeController,
+                        focusNode: focusNode,
+                        maxLines: null,
+                        minLines: 1,
+                        horizontalScroll: true,
+                        isDense: true,
+                        textStyle: const TextStyle(fontFamily: 'SourceCode'),
+                        onChanged: (str) {
+                          controller.text = codeController.text;
+                        },
+                        background: Colors.white24,
+                      ),
+                    ),
+                  )
+                : Container(
+                    margin: const EdgeInsets.all(20),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: SingleChildScrollView(
+                      child: TextField(
+                        controller: controller,
+                        textInputAction: TextInputAction.none,
+                        maxLines: null,
+                        maxLength: null,
+                        onChanged: (str) {
+                          codeController.text = controller.text;
+                        },
+                        decoration: const InputDecoration.collapsed(
+                          hintText: '',
+                        ),
+                        autofocus: true,
+                        showCursor: true,
+                        focusNode: focusNode,
+                      ),
+                    ),
+                  ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: TextButton(
+                child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
+                onPressed: () {
+                  if (context.locale == Locale('ru')) {
+                    context.setLocale(Locale('en'));
+                  } else {
+                    context.setLocale(Locale('ru'));
+                  }
+                },
+              ),
             ),
-            autofocus: true,
-            showCursor: true,
-            focusNode: focusNode,
-          ),
+          ],
         ),
       ),
     );
