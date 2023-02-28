@@ -16,6 +16,8 @@ import 'package:menu_bar/menu_bar.dart';
 
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
+import 'package:intl/intl.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -258,6 +260,7 @@ class _HomeState extends State<Home> {
     focusNode.requestFocus();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return MenuBar(
@@ -464,6 +467,10 @@ class _HomeState extends State<Home> {
                     ),
                   ),
             Align(
+                alignment: Alignment.bottomLeft,
+                child: ClockWidget(),
+            ),
+            Align(
               alignment: Alignment.bottomRight,
               child: TextButton(
                 child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
@@ -479,6 +486,19 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
+    );
+  }
+}
+class ClockWidget extends StatelessWidget {
+  const ClockWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Stream.periodic(const Duration(seconds: 1)),
+      builder: (context, snapshot) {
+        return Text(DateFormat('HH:mm:ss').format(DateTime.now()));
+      },
     );
   }
 }
