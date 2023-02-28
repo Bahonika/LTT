@@ -14,7 +14,9 @@ import 'package:highlight/languages/dart.dart';
 import 'package:highlight/languages/python.dart';
 import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
+import 'package:wrod/custom_theme.dart';
 
+import 'config.dart';
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
 
@@ -31,8 +33,23 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+    currentTheme.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +58,10 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
+      theme: CustomTheme.lightTheme,
+      darkTheme: CustomTheme.darkTheme,
+      //warmTheme: CustomTheme.warmTheme,
+      themeMode: currentTheme.currentTheme,
       debugShowCheckedModeBanner: false,
       home: const Home(),
     );
@@ -275,12 +293,19 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return MenuBar(
-      menuStyle: const MenuStyle(
-        backgroundColor: Colors.white,
+      menuStyle: MenuStyle(
+        backgroundColor: Theme.of(context).primaryColor,
       ),
-      barStyle: const BarStyle(
-        backgroundColor: Colors.white,
+      barStyle: BarStyle(
+        backgroundColor: Theme.of(context).primaryColor,
       ),
+      barButtonStyle: BarButtonStyle(
+         backgroundColor: Theme.of(context).primaryColor,
+      ),
+      menuButtonStyle: MenuButtonStyle(
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+
       barButtons: [
         BarButton(
           text: Text(LocaleKeys.file.tr()),
@@ -352,17 +377,19 @@ class _HomeState extends State<Home> {
                 text: Text(LocaleKeys.font.tr()),
               ),
               MenuButton(
-                  onTap: () => open(),
+                  onTap: () => null,
                   text: Text(LocaleKeys.design_theme.tr()),
                   submenu: SubMenu(
                     menuItems: [
                       MenuButton(
-                          onTap: () => open(),
+                          onTap: () => currentTheme.toggleLight(),
                           text: const Text('Светлая тема')),
                       MenuButton(
-                          onTap: () => open(), text: const Text('Тёмная тема')),
+                          onTap: () => currentTheme.toggleDark(),
+                          text: const Text('Тёмная тема')),
                       MenuButton(
-                          onTap: () => open(), text: const Text('Яркая тема')),
+                          onTap: () => currentTheme.toggleWarm(),
+                          text: const Text('Яркая тема')),
                     ],
                   ))
             ],
