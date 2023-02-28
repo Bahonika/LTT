@@ -305,7 +305,6 @@ class _HomeState extends State<Home> {
       menuButtonStyle: MenuButtonStyle(
         backgroundColor: Theme.of(context).primaryColor,
       ),
-
       barButtons: [
         BarButton(
           text: Text(LocaleKeys.file.tr()),
@@ -383,13 +382,13 @@ class _HomeState extends State<Home> {
                     menuItems: [
                       MenuButton(
                           onTap: () => currentTheme.toggleLight(),
-                          text: const Text('Светлая тема')),
+                          text: Text(LocaleKeys.light_theme.tr())),
                       MenuButton(
                           onTap: () => currentTheme.toggleDark(),
-                          text: const Text('Тёмная тема')),
+                          text: Text(LocaleKeys.dark_theme.tr())),
                       MenuButton(
                           onTap: () => currentTheme.toggleWarm(),
-                          text: const Text('Яркая тема')),
+                          text: Text(LocaleKeys.warm_theme.tr())),
                     ],
                   ))
             ],
@@ -426,7 +425,7 @@ class _HomeState extends State<Home> {
           ),
         ),
         BarButton(
-          text: const Text('Подсветка кода'),
+          text: Text(LocaleKeys.syntax_highlighter.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
@@ -510,6 +509,9 @@ class _HomeState extends State<Home> {
             Align(
               alignment: Alignment.bottomRight,
               child: TextButton(
+                style: TextButton.styleFrom(
+                  primary: Theme.of(context).primaryColor, // Text Color
+                ),
                 child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
                 onPressed: () {
                   if (context.locale == Locale('ru')) {
