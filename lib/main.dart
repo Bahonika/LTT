@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -13,7 +14,9 @@ import 'package:highlight/languages/dart.dart';
 import 'package:highlight/languages/python.dart';
 import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
+import 'package:wrod/custom_theme.dart';
 
+import 'config.dart';
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
 import 'package:intl/intl.dart';
@@ -31,8 +34,23 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  @override
+  void initState() {
+    super.initState();
+    currentTheme.addListener(() {
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +59,10 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
+      theme: CustomTheme.lightTheme,
+      darkTheme: CustomTheme.darkTheme,
+      //warmTheme: CustomTheme.warmTheme,
+      themeMode: currentTheme.currentTheme,
       debugShowCheckedModeBanner: false,
       home: const Home(),
     );
@@ -242,6 +261,19 @@ class _HomeState extends State<Home> {
     focusNode.requestFocus();
   }
 
+  Future<void> style() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            contentPadding: const EdgeInsets.all(8),
+            insetPadding: const EdgeInsets.all(8),
+            title: Row(),
+          );
+        });
+    focusNode.requestFocus();
+  }
+
   Future<void> insert() async {
     final offset = controller.selection.start;
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -289,11 +321,17 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return MenuBar(
-      menuStyle: const MenuStyle(
-        backgroundColor: Colors.white,
+      menuStyle: MenuStyle(
+        backgroundColor: Theme.of(context).primaryColor,
       ),
-      barStyle: const BarStyle(
-        backgroundColor: Colors.white,
+      barStyle: BarStyle(
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+      barButtonStyle: BarButtonStyle(
+         backgroundColor: Theme.of(context).primaryColor,
+      ),
+      menuButtonStyle: MenuButtonStyle(
+        backgroundColor: Theme.of(context).primaryColor,
       ),
       barButtons: [
         BarButton(
@@ -362,20 +400,25 @@ class _HomeState extends State<Home> {
           submenu: SubMenu(
             menuItems: [
               MenuButton(
-                onTap: () => open(),
+                onTap: () => style(),
                 text: Text(LocaleKeys.font.tr()),
               ),
               MenuButton(
-                  onTap: () => open(),
+                  onTap: () => null,
                   text: Text(LocaleKeys.design_theme.tr()),
                   submenu: SubMenu(
                     menuItems: [
                       MenuButton(
-                        onTap: () => open(),
-                        text: const Text('Шрифт'),
-                      ),
+                          onTap: () => currentTheme.toggleLight(),
+                          text: Text(LocaleKeys.light_theme.tr())),
+                      MenuButton(
+                          onTap: () => currentTheme.toggleDark(),
+                          text: Text(LocaleKeys.dark_theme.tr())),
+                      MenuButton(
+                          onTap: () => currentTheme.toggleWarm(),
+                          text: Text(LocaleKeys.warm_theme.tr())),
                     ],
-                  )),
+                  ))
             ],
           ),
         ),
@@ -410,7 +453,7 @@ class _HomeState extends State<Home> {
           ),
         ),
         BarButton(
-          text: const Text('Подсветка кода'),
+          text: Text(LocaleKeys.syntax_highlighter.tr()),
           submenu: SubMenu(
             menuItems: [
               MenuButton(
@@ -506,15 +549,17 @@ class _HomeState extends State<Home> {
                   ),
                   const ClockWidget(),
                   TextButton(
-                    child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
-                    onPressed: () {
-                      if (context.locale == Locale('ru')) {
-                        context.setLocale(Locale('en'));
-                      } else {
-                        context.setLocale(Locale('ru'));
-                      }
-                    },
-                  ),
+                    style: TextButton.styleFrom(
+                  primary: Theme.of(context).primaryColor, // Text Color
+                ),
+                child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
+                onPressed: () {
+                  if (context.locale == Locale('ru')) {
+                    context.setLocale(Locale('en'));
+                  } else {
+                    context.setLocale(Locale('ru'));
+                  }
+                },),
                 ],
               ),
             ),

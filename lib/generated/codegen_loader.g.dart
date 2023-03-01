@@ -37,7 +37,11 @@ class CodegenLoader extends AssetLoader{
   "reference": "Reference",
   "about_program": "About program",
   "what_to_find": "What to find?",
-  "what_to_replace": "What to replace it with?"
+  "what_to_replace": "What to replace it with?",
+  "light_theme" : "Light theme",
+  "dark_theme" : "Dark theme",
+  "warm_theme" : "Warm theme",
+  "syntax_highlighter" : "Syntax highlighter"
 };
 static const Map<String,dynamic> ru = {
   "file": "Файл",
@@ -62,7 +66,11 @@ static const Map<String,dynamic> ru = {
   "reference": "Справка",
   "about_program": "О программе",
   "what_to_find": "Что найти?",
-  "what_to_replace": "На что заменить?"
+  "what_to_replace": "На что заменить?",
+  "light_theme" : "Светлая тема",
+  "dark_theme" : "Тёмная тема",
+  "warm_theme" : "Тёплая тема",
+  "syntax_highlighter" : "Подсветка кода",
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "ru": ru};
 }
