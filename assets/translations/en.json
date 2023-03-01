@@ -21,5 +21,10 @@
   "reference": "Reference",
   "about_program": "About program",
   "what_to_find": "What to find?",
-  "what_to_replace": "What to replace it with?"
+  "what_to_replace": "What to replace it with?",
+  "current_row": "Current row:",
+  "light_theme": "Light theme",
+  "dark_theme": "Dark theme",
+  "warm_theme": "Warm theme",
+  "syntax_highlighter": "Syntax highlighter"
 }
