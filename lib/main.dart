@@ -340,7 +340,19 @@ class _HomeState extends ConsumerState<Home> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(child: MoveWindow()),
+                Expanded(
+                    child: MoveWindow(
+                  child: Material(
+                    color: Colors.transparent,
+
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Text('We Are On Display'),
+                      ],
+                    ),
+                  ),
+                )),
                 MinimizeWindowButton(),
                 MaximizeWindowButton(),
                 CloseWindowButton(),
