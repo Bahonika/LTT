@@ -344,18 +344,42 @@ class _HomeState extends ConsumerState<Home> {
                     child: MoveWindow(
                   child: Material(
                     color: Colors.transparent,
-
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
-                        Text('We Are On Display'),
+                      children: [
+                        const SizedBox(width: 5),
+                        Icon(
+                          Icons.edit_note_rounded,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                        const Text(
+                          'We Are On Display',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 )),
-                MinimizeWindowButton(),
-                MaximizeWindowButton(),
-                CloseWindowButton(),
+                MinimizeWindowButton(
+                  colors: WindowButtonColors(
+                    mouseDown: Colors.black26,
+                    mouseOver: Colors.black12,
+                  ),
+                ),
+                MaximizeWindowButton(
+                  colors: WindowButtonColors(
+                    mouseDown: Colors.black26,
+                    mouseOver: Colors.black12,
+                  ),
+                ),
+                CloseWindowButton(
+                  colors: WindowButtonColors(
+                    mouseDown: Colors.red.withOpacity(0.7),
+                    mouseOver: Colors.red.withOpacity(0.5),
+                  ),
+                ),
               ],
             ),
           ),
