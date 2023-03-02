@@ -21,5 +21,7 @@
   "reference": "Reference",
   "about_program": "About program",
   "what_to_find": "What to find?",
-  "what_to_replace": "What to replace it with?"
+  "what_to_replace": "What to replace it with?",
+  "reference_text": "wrod - text editor\nCTRL+A - select all text.\nCTRL+X - cut selected text.\nCTRL+C - copy selected text.\nCTRL+V - paste selected text.",
+  "about_program_text": "Text editor (Laboratory work No. 1)\nVersion 1.0\n© 2023 \"Left wand Twix\" - a team of students of group 4AMCS-PT FSBEI HE \"MASU\"\nCross-platform application developed within the discipline \"Fundamentals of cross-platform application development\""
 }

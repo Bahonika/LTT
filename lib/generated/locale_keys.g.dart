@@ -24,5 +24,7 @@ abstract class  LocaleKeys {
   static const about_program = 'about_program';
   static const what_to_find = 'what_to_find';
   static const what_to_replace = 'what_to_replace';
+  static const reference_text = 'reference_text';
+  static const about_program_text = 'about_program_text';
 
 }
