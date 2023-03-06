@@ -29,5 +29,8 @@ abstract class  LocaleKeys {
   static const dark_theme = 'dark_theme';
   static const warm_theme = 'warm_theme';
   static const syntax_highlighter = 'syntax_highlighter';
-
+  static const montserrat = 'montserrat';
+  static const roboto_mono = 'roboto_mono';
+  static const raleway = 'raleway';
+  static const times_new_roman = 'times_new_roman';
 }

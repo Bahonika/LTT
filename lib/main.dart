@@ -16,6 +16,7 @@ import 'package:highlight/languages/python.dart';
 import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:wrod/custom_theme.dart';
+import 'package:wrod/font_provider.dart';
 import 'package:wrod/theme_provider.dart';
 
 import 'config.dart';
@@ -272,19 +273,6 @@ class _HomeState extends ConsumerState<Home> {
     focusNode.requestFocus();
   }
 
-  Future<void> style() async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            contentPadding: const EdgeInsets.all(8),
-            insetPadding: const EdgeInsets.all(8),
-            title: Row(),
-          );
-        });
-    focusNode.requestFocus();
-  }
-
   Future<void> insert() async {
     final offset = controller.selection.start;
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -331,6 +319,7 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
+
     return WindowTitleBarBox(
       child: Column(
         children: [
@@ -427,8 +416,32 @@ class _HomeState extends ConsumerState<Home> {
                   submenu: SubMenu(
                     menuItems: [
                       MenuButton(
-                        onTap: () => style(),
+                        onTap: () => null,
                         text: Text(LocaleKeys.font.tr()),
+                          submenu: SubMenu(
+                            menuItems: [
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('Montserrat');
+                                  },
+                                  text: Text(LocaleKeys.montserrat.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('Raleway');
+                                  },
+                                  text: Text(LocaleKeys.raleway.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('RobotoMono');
+                                  },
+                                  text: Text(LocaleKeys.roboto_mono.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('TimesNewRoman');
+                                  },
+                                  text: Text(LocaleKeys.times_new_roman.tr())),
+                            ],
+                          ),
                       ),
                       MenuButton(
                           onTap: () => null,
@@ -555,6 +568,9 @@ class _HomeState extends ConsumerState<Home> {
                               child: TextField(
                                 controller: controller,
                                 textInputAction: TextInputAction.none,
+                                style: TextStyle(
+                                  fontFamily: ref.watch(fontProvider),
+                                ),
                                 maxLines: null,
                                 maxLength: null,
                                 onChanged: (str) {
