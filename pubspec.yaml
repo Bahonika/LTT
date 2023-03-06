@@ -13,7 +13,6 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   flutter_file_view: ^2.2.0+1
-  flutter_localization: ^0.1.10
   path_provider: ^2.0.13
   filesystem_picker: ^3.1.0
   file_picker: ^5.2.5
@@ -23,11 +22,15 @@ dependencies:
   code_text_field: ^1.0.0
 
   easy_localization: ^3.0.1
+  flutter_riverpod: ^2.3.0
+  window_manager: ^0.3.1
+  bitsdojo_window: ^0.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^2.0.0
+  msix: ^3.8.2
 
 flutter:
   uses-material-design: true

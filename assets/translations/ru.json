@@ -21,5 +21,10 @@
   "reference": "Справка",
   "about_program": "О программе",
   "what_to_find": "Что найти?",
-  "what_to_replace": "На что заменить?"
+  "what_to_replace": "На что заменить?",
+  "current_row": "Текущая строка:",
+  "light_theme": "Светлая тема",
+  "dark_theme": "Темная тема",
+  "warm_theme": "Яркая тема",
+  "syntax_highlighter": "Подстветка синтаксиса"
 }

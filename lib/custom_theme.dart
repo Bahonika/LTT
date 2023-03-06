@@ -2,61 +2,62 @@ import 'package:flutter/material.dart';
 
 import 'custom_colors.dart';
 
-class CustomTheme with ChangeNotifier{
+class CustomTheme with ChangeNotifier {
   static ThemeData get lightTheme {
     return ThemeData(
-        primaryColor: CustomColors.lightThemeMenu,
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Montserrat',
-        buttonTheme: ButtonThemeData(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-          buttonColor: Colors.purple,
+      primaryColor: CustomColors.lightThemeMenu,
+      scaffoldBackgroundColor: Colors.white,
+      fontFamily: 'Montserrat',
+      buttonTheme: ButtonThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
         ),
+        buttonColor: Colors.purple,
+      ),
     );
   }
 
   static ThemeData get darkTheme {
     return ThemeData(
-        primaryColor: CustomColors.darkThemeMenu,
-        scaffoldBackgroundColor: Colors.grey,
-        fontFamily: 'Montserrat',
-        textTheme: ThemeData.dark().textTheme,
-        buttonTheme: ButtonThemeData(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-          buttonColor: Colors.grey,
+      primaryColor: CustomColors.darkThemeMenu,
+      scaffoldBackgroundColor: Colors.grey,
+      fontFamily: 'Montserrat',
+      textTheme: ThemeData.dark().textTheme,
+      buttonTheme: ButtonThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
         ),
+        buttonColor: Colors.grey,
+      ),
     );
   }
 
   static ThemeData get warmTheme {
     return ThemeData(
       primaryColor: CustomColors.warmThemeMenu,
-      scaffoldBackgroundColor: Colors.grey,
+      scaffoldBackgroundColor: Colors.greenAccent,
       fontFamily: 'Montserrat',
       textTheme: ThemeData.dark().textTheme,
       buttonTheme: ButtonThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-        buttonColor: Colors.grey,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
+        ),
+        buttonColor: Colors.green,
       ),
     );
   }
-
 
   static int themeID = 0;
 
   ThemeMode get currentTheme {
     if (themeID == 0) {
       return ThemeMode.light;
-    }
-    else if (themeID == 1) {
+    } else if (themeID == 1) {
       return ThemeMode.dark;
-    }
-    else {
+    } else {
       return ThemeMode.light;
     }
   }
-
-
 
   void toggleLight() {
     if (themeID != 0) {
@@ -78,5 +79,4 @@ class CustomTheme with ChangeNotifier{
       notifyListeners();
     }
   }
-
 }

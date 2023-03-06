@@ -38,10 +38,14 @@ class CodegenLoader extends AssetLoader{
   "about_program": "About program",
   "what_to_find": "What to find?",
   "what_to_replace": "What to replace it with?",
-  "light_theme" : "Light theme",
-  "dark_theme" : "Dark theme",
-  "warm_theme" : "Warm theme",
-  "syntax_highlighter" : "Syntax highlighter"
+  "reference_text": "wrod - text editor\nCTRL+A - select all text.\nCTRL+X - cut selected text.\nCTRL+C - copy selected text.\nCTRL+V - paste selected text.",
+  "about_program_text": "Text editor (Laboratory work No. 1)\nVersion 1.0\n© 2023 \"Left wand Twix\" - a team of students of group 4AMCS-PT FSBEI HE \"MASU\"\nCross-platform application developed within the discipline \"Fundamentals of cross-platform application development\""
+  "what_to_replace": "What to replace it with?",
+  "current_row": "Current row:",
+  "light_theme": "Light theme",
+  "dark_theme": "Dark theme",
+  "warm_theme": "Warm theme",
+  "syntax_highlighter": "Syntax highlighter"
 };
 static const Map<String,dynamic> ru = {
   "file": "Файл",
@@ -67,10 +71,14 @@ static const Map<String,dynamic> ru = {
   "about_program": "О программе",
   "what_to_find": "Что найти?",
   "what_to_replace": "На что заменить?",
-  "light_theme" : "Светлая тема",
-  "dark_theme" : "Тёмная тема",
-  "warm_theme" : "Тёплая тема",
-  "syntax_highlighter" : "Подсветка кода",
+  "current_row": "Текущая строка:",
+  "light_theme": "Светлая тема",
+  "dark_theme": "Темная тема",
+  "warm_theme": "Яркая тема",
+  "syntax_highlighter": "Подстветка синтаксиса"
+  "what_to_replace": "На что заменить?",
+  "reference_text": "wrod - текстовый редактор\nГоряие клавиши:\nCTRL+A - выделить весь текст.\nCTRL+X - вырезать выделенный текст.\nCTRL+C - копировать выделенный текст.\nCTRL+V - вставить выделенный текст.",
+  "about_program_text": "Текстовый редактор (Лабораторная работа №1)\nВерсия 1.0\n© 2023 \"Левая палочка Твикс\" - команда студентов гуппы 4БПМИ-ПТ ФГБОУ ВО \"МАГУ\"\nКроссплатформенное приложение разработанное в рамках дисциплины \"Основы разработки кросс-платформенных приложений\""
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"en": en, "ru": ru};
 }
