@@ -197,6 +197,16 @@ class _HomeState extends State<Home> {
 
   void breakApp() {
     exit(0);
+
+  }
+  void openHelp() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => SecondScreen() ));
+    //Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: Text ("Hey")) ));
+  }
+
+  void openAbout() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ThirdScreen() ));
+    //Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: Text ("Hey")) ));
   }
 
   Future<void> find({
@@ -442,11 +452,11 @@ class _HomeState extends State<Home> {
           submenu: SubMenu(
             menuItems: [
               MenuButton(
-                onTap: () => open(),
+                onTap: () => openHelp(),
                 text: Text(LocaleKeys.reference.tr()),
               ),
               MenuButton(
-                onTap: () => open(),
+                onTap: () => openAbout(),
                 text: Text(LocaleKeys.about_program.tr()),
               ),
             ],
@@ -583,3 +593,25 @@ class ClockWidget extends StatelessWidget {
     );
   }
 }
+
+
+class SecondScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(LocaleKeys.reference.tr())),
+      body: Center (child: Text(LocaleKeys.reference_text.tr())),
+
+    );
+  }
+}
+class ThirdScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(LocaleKeys.about_program.tr())),
+      body: Center(child: Text(LocaleKeys.about_program_text.tr())),
+    );
+  }
+}
+//Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: Text ("Hey")) ));
