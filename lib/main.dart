@@ -4,6 +4,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
@@ -33,15 +34,30 @@ Future<void> main() async {
         assetLoader: const CodegenLoader(),
         child: const ProviderScope(child: MyApp())),
   );
-  doWhenWindowReady(() {
-    final win = appWindow;
-    const initialSize = Size(1000, 700);
-    win.minSize = initialSize;
-    win.size = initialSize;
-    win.alignment = Alignment.center;
-    win.title = "Custom window with Flutter";
-    win.show();
-  });
+  if (!Platform.isAndroid) {
+    doWhenWindowReady(() {
+      final win = appWindow;
+      const initialSize = Size(1000, 700);
+      win.minSize = initialSize;
+      win.size = initialSize;
+      win.alignment = Alignment.center;
+      win.title = "Custom window with Flutter";
+      win.show();
+    });
+  }
+}
+
+class WindowWrapper extends StatelessWidget {
+  const WindowWrapper({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -72,7 +88,9 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: ref.watch(themeProvider),
       themeMode: currentTheme.currentTheme,
       debugShowCheckedModeBanner: false,
-      home: const Home(),
+      home: Platform.isAndroid
+          ? const Home()
+          : WindowTitleBarBox(child: const Home()),
     );
   }
 }
@@ -105,7 +123,12 @@ class _HomeState extends ConsumerState<Home> {
   void listen() {
     rowNumber = '\n'
             .allMatches(
-              controller.text.substring(0, controller.selection.baseOffset),
+              controller.text.substring(
+                0,
+                controller.selection.baseOffset >= 0
+                    ? controller.selection.baseOffset
+                    : 0,
+              ),
             )
             .length +
         1;
@@ -115,8 +138,12 @@ class _HomeState extends ConsumerState<Home> {
   void codeListen() {
     rowNumber = '\n'
             .allMatches(
-              codeController.text
-                  .substring(0, codeController.selection.baseOffset),
+              codeController.text.substring(
+                0,
+                codeController.selection.baseOffset >= 0
+                    ? codeController.selection.baseOffset
+                    : 0,
+              ),
             )
             .length +
         1;
@@ -208,16 +235,16 @@ class _HomeState extends ConsumerState<Home> {
 
   void breakApp() {
     exit(0);
-
   }
+
   void openHelp() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SecondScreen() ));
-    //Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: Text ("Hey")) ));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const SecondScreen()));
   }
 
   void openAbout() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ThirdScreen() ));
-    //Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: Text ("Hey")) ));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const ThirdScreen()));
   }
 
   Future<void> find({
@@ -341,322 +368,326 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return WindowTitleBarBox(
-      child: Column(
-        children: [
-          Container(
-            color: Theme.of(context).primaryColor,
-            height: 30,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Expanded(
-                    child: MoveWindow(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(width: 5),
-                        Icon(
-                          Icons.edit_note_rounded,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                        const Text(
-                          'We Are On Display',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
-                MinimizeWindowButton(
-                  colors: WindowButtonColors(
-                    mouseDown: Colors.black26,
-                    mouseOver: Colors.black12,
-                  ),
-                ),
-                MaximizeWindowButton(
-                  colors: WindowButtonColors(
-                    mouseDown: Colors.black26,
-                    mouseOver: Colors.black12,
-                  ),
-                ),
-                CloseWindowButton(
-                  colors: WindowButtonColors(
-                    mouseDown: Colors.red.withOpacity(0.7),
-                    mouseOver: Colors.red.withOpacity(0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: MenuBar(
-              menuStyle: MenuStyle(
+    return Column(
+      children: [
+        Platform.isAndroid
+            ? AppBar(
                 backgroundColor: Theme.of(context).primaryColor,
-              ),
-              barStyle: BarStyle(
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-              barButtonStyle: BarButtonStyle(
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-              menuButtonStyle: MenuButtonStyle(
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-              barButtons: [
-                BarButton(
-                  text: Text(LocaleKeys.file.tr()),
-                  submenu: SubMenu(
-                    menuItems: [
-                      MenuButton(
-                        onTap: () => create(),
-                        text: Text(LocaleKeys.new_1.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => open(),
-                        text: Text(LocaleKeys.open.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => create(),
-                        text: Text(LocaleKeys.close.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () {
-                          if (file != null) {
-                            save();
-                          } else {
-                            saveAs();
-                          }
-                        },
-                        text: Text(LocaleKeys.save.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => saveAs(),
-                        text: Text(LocaleKeys.save_as.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => breakApp(),
-                        text: Text(LocaleKeys.exit.tr()),
-                      ),
-                    ],
-                  ),
-                ),
-                BarButton(
-                  text: Text(LocaleKeys.edit.tr()),
-                  submenu: SubMenu(
-                    menuItems: [
-                      MenuButton(
-                        onTap: () => select(),
-                        text: Text(LocaleKeys.select_all.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => cut(),
-                        text: Text(LocaleKeys.cut.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => copy(),
-                        text: Text(LocaleKeys.copy.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => insert(),
-                        text: Text(LocaleKeys.paste.tr()),
-                      ),
-                    ],
-                  ),
-                ),
-                BarButton(
-                  text: Text(LocaleKeys.view.tr()),
-                  submenu: SubMenu(
-                    menuItems: [
-                      MenuButton(
-                        onTap: () => style(),
-                        text: Text(LocaleKeys.font.tr()),
-                      ),
-                      MenuButton(
-                          onTap: () => null,
-                          text: Text(LocaleKeys.design_theme.tr()),
-                          submenu: SubMenu(
-                            menuItems: [
-                              MenuButton(
-                                  onTap: () {
-                                    ref.read(themeProvider.notifier).setLight();
-                                  },
-                                  text: Text(LocaleKeys.light_theme.tr())),
-                              MenuButton(
-                                  onTap: () {
-                                    ref.read(themeProvider.notifier).setDark();
-                                  },
-                                  text: Text(LocaleKeys.dark_theme.tr())),
-                              MenuButton(
-                                  onTap: () {
-                                    ref.read(themeProvider.notifier).setWarm();
-                                  },
-                                  text: Text(LocaleKeys.warm_theme.tr())),
-                            ],
-                          ))
-                    ],
-                  ),
-                ),
-                BarButton(
-                  text: Text(LocaleKeys.search.tr()),
-                  submenu: SubMenu(
-                    menuItems: [
-                      MenuButton(
-                        onTap: () => find(),
-                        text: Text(LocaleKeys.find.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => find(replace: true),
-                        text: Text(LocaleKeys.replace.tr()),
-                      ),
-                    ],
-                  ),
-                ),
-                BarButton(
-                  text: Text(LocaleKeys.help.tr()),
-                  submenu: SubMenu(
-                    menuItems: [
-                      MenuButton(
-                        onTap: () => openHelp(),
-                        text: Text(LocaleKeys.reference.tr()),
-                      ),
-                      MenuButton(
-                        onTap: () => openAbout(),
-                        text: Text(LocaleKeys.about_program.tr()),
-                      ),
-                    ],
-                  ),
-                ),
-                BarButton(
-                  text: Text(LocaleKeys.syntax_highlighter.tr()),
-                  submenu: SubMenu(
-                    menuItems: [
-                      MenuButton(
-                        onTap: () => toggle(dart),
-                        text: Text(
-                          'dart',
-                          style: TextStyle(
-                            fontWeight: mode == dart
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                      MenuButton(
-                        onTap: () => toggle(java),
-                        text: Text(
-                          'java',
-                          style: TextStyle(
-                            fontWeight: mode == java
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                      MenuButton(
-                        onTap: () => toggle(python),
-                        text: Text(
-                          'python',
-                          style: TextStyle(
-                            fontWeight: mode == python
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              child: Scaffold(
-                body: Stack(
+                title: const Text('We are on display'),
+              )
+            : Container(
+                color: Theme.of(context).primaryColor,
+                height: 30,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    highlight
-                        ? SingleChildScrollView(
-                            child: CodeTheme(
-                              data: const CodeThemeData(styles: monoBlueTheme),
-                              child: CodeField(
-                                controller: codeController,
-                                focusNode: focusNode,
-                                maxLines: null,
-                                minLines: 1,
-                                horizontalScroll: true,
-                                isDense: true,
-                                onChanged: (str) {
-                                  controller.text = codeController.text;
-                                },
-                                background: Colors.white24,
+                    Expanded(
+                        child: MoveWindow(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 5),
+                            Icon(
+                              Icons.edit_note_rounded,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                            const Text(
+                              'We Are On Display',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
-                          )
-                        : Container(
-                            margin: const EdgeInsets.all(20),
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height,
-                            child: SingleChildScrollView(
-                              child: TextField(
-                                controller: controller,
-                                textInputAction: TextInputAction.none,
-                                maxLines: null,
-                                maxLength: null,
-                                onChanged: (str) {
-                                  codeController.text = controller.text;
-                                },
-                                decoration: InputDecoration.collapsed(
-                                  hintText: '',
-                                  fillColor:
-                                      Theme.of(context).scaffoldBackgroundColor,
-                                ),
-                                autofocus: true,
-                                showCursor: true,
-                                focusNode: focusNode,
-                              ),
-                            ),
-                          ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(LocaleKeys.current_row.tr()),
-                          Text(
-                            '$rowNumber',
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          const ClockWidget(),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).primaryColor, // Text Color
-                            ),
-                            child: Text(context.locale == const Locale('ru')
-                                ? 'ru'
-                                : 'en'),
-                            onPressed: () {
-                              if (context.locale == const Locale('ru')) {
-                                context.setLocale(const Locale('en'));
-                              } else {
-                                context.setLocale(const Locale('ru'));
-                              }
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    )),
+                    MinimizeWindowButton(
+                      colors: WindowButtonColors(
+                        mouseDown: Colors.black26,
+                        mouseOver: Colors.black12,
+                      ),
+                    ),
+                    MaximizeWindowButton(
+                      colors: WindowButtonColors(
+                        mouseDown: Colors.black26,
+                        mouseOver: Colors.black12,
+                      ),
+                    ),
+                    CloseWindowButton(
+                      colors: WindowButtonColors(
+                        mouseDown: Colors.red.withOpacity(0.7),
+                        mouseOver: Colors.red.withOpacity(0.5),
                       ),
                     ),
                   ],
                 ),
               ),
+        Expanded(
+          child: MenuBar(
+            menuStyle: MenuStyle(
+              backgroundColor: Theme.of(context).primaryColor,
+            ),
+            barStyle: BarStyle(
+              backgroundColor: Theme.of(context).primaryColor,
+            ),
+            barButtonStyle: BarButtonStyle(
+              backgroundColor: Theme.of(context).primaryColor,
+            ),
+            menuButtonStyle: MenuButtonStyle(
+              backgroundColor: Theme.of(context).primaryColor,
+            ),
+            barButtons: [
+              BarButton(
+                text: Text(LocaleKeys.file.tr()),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => create(),
+                      text: Text(LocaleKeys.new_1.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => open(),
+                      text: Text(LocaleKeys.open.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => create(),
+                      text: Text(LocaleKeys.close.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () {
+                        if (file != null) {
+                          save();
+                        } else {
+                          saveAs();
+                        }
+                      },
+                      text: Text(LocaleKeys.save.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => saveAs(),
+                      text: Text(LocaleKeys.save_as.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => breakApp(),
+                      text: Text(LocaleKeys.exit.tr()),
+                    ),
+                  ],
+                ),
+              ),
+              BarButton(
+                text: Text(LocaleKeys.edit.tr()),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => select(),
+                      text: Text(LocaleKeys.select_all.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => cut(),
+                      text: Text(LocaleKeys.cut.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => copy(),
+                      text: Text(LocaleKeys.copy.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => insert(),
+                      text: Text(LocaleKeys.paste.tr()),
+                    ),
+                  ],
+                ),
+              ),
+              BarButton(
+                text: Text(LocaleKeys.view.tr()),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => style(),
+                      text: Text(LocaleKeys.font.tr()),
+                    ),
+                    MenuButton(
+                        onTap: () => null,
+                        text: Text(LocaleKeys.design_theme.tr()),
+                        submenu: SubMenu(
+                          menuItems: [
+                            MenuButton(
+                                onTap: () {
+                                  ref.read(themeProvider.notifier).setLight();
+                                },
+                                text: Text(LocaleKeys.light_theme.tr())),
+                            MenuButton(
+                                onTap: () {
+                                  ref.read(themeProvider.notifier).setDark();
+                                },
+                                text: Text(LocaleKeys.dark_theme.tr())),
+                            MenuButton(
+                                onTap: () {
+                                  ref.read(themeProvider.notifier).setWarm();
+                                },
+                                text: Text(LocaleKeys.warm_theme.tr())),
+                          ],
+                        ))
+                  ],
+                ),
+              ),
+              BarButton(
+                text: Text(LocaleKeys.search.tr()),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => find(),
+                      text: Text(LocaleKeys.find.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => find(replace: true),
+                      text: Text(LocaleKeys.replace.tr()),
+                    ),
+                  ],
+                ),
+              ),
+              BarButton(
+                text: Text(LocaleKeys.help.tr()),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => openHelp(),
+                      text: Text(LocaleKeys.reference.tr()),
+                    ),
+                    MenuButton(
+                      onTap: () => openAbout(),
+                      text: Text(LocaleKeys.about_program.tr()),
+                    ),
+                  ],
+                ),
+              ),
+              BarButton(
+                text: Text(LocaleKeys.syntax_highlighter.tr()),
+                submenu: SubMenu(
+                  menuItems: [
+                    MenuButton(
+                      onTap: () => toggle(dart),
+                      text: Text(
+                        'dart',
+                        style: TextStyle(
+                          fontWeight: mode == dart
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    MenuButton(
+                      onTap: () => toggle(java),
+                      text: Text(
+                        'java',
+                        style: TextStyle(
+                          fontWeight: mode == java
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    MenuButton(
+                      onTap: () => toggle(python),
+                      text: Text(
+                        'python',
+                        style: TextStyle(
+                          fontWeight: mode == python
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  highlight
+                      ? SingleChildScrollView(
+                          child: CodeTheme(
+                            data: const CodeThemeData(styles: monoBlueTheme),
+                            child: CodeField(
+                              controller: codeController,
+                              focusNode: focusNode,
+                              maxLines: null,
+                              minLines: 1,
+                              horizontalScroll: true,
+                              isDense: true,
+                              onChanged: (str) {
+                                controller.text = codeController.text;
+                              },
+                              background: Colors.white24,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          margin: const EdgeInsets.all(20),
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          child: SingleChildScrollView(
+                            child: TextField(
+                              controller: controller,
+                              textInputAction: TextInputAction.none,
+                              maxLines: null,
+                              maxLength: null,
+                              onChanged: (str) {
+                                codeController.text = controller.text;
+                              },
+                              decoration: InputDecoration.collapsed(
+                                hintText: '',
+                                fillColor:
+                                    Theme.of(context).scaffoldBackgroundColor,
+                              ),
+                              autofocus: true,
+                              showCursor: true,
+                              focusNode: focusNode,
+                            ),
+                          ),
+                        ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(LocaleKeys.current_row.tr()),
+                        Text(
+                          '$rowNumber',
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        const ClockWidget(),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                Theme.of(context).primaryColor, // Text Color
+                          ),
+                          child: Text(context.locale == const Locale('ru')
+                              ? 'ru'
+                              : 'en'),
+                          onPressed: () {
+                            if (context.locale == const Locale('ru')) {
+                              context.setLocale(const Locale('en'));
+                            } else {
+                              context.setLocale(const Locale('ru'));
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -675,18 +706,21 @@ class ClockWidget extends StatelessWidget {
   }
 }
 
-
 class SecondScreen extends StatelessWidget {
+  const SecondScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(LocaleKeys.reference.tr())),
-      body: Center (child: Text(LocaleKeys.reference_text.tr())),
-
+      body: Center(child: Text(LocaleKeys.reference_text.tr())),
     );
   }
 }
+
 class ThirdScreen extends StatelessWidget {
+  const ThirdScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -695,4 +729,3 @@ class ThirdScreen extends StatelessWidget {
     );
   }
 }
-//Navigator.push(context, MaterialPageRoute(builder: (context) => Center(child: Text ("Hey")) ));

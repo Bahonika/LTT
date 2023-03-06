@@ -16,9 +16,6 @@ abstract class  LocaleKeys {
   static const view = 'view';
   static const font = 'font';
   static const design_theme = 'design_theme';
-  static const light_theme = 'light_theme';
-  static const dark_theme = 'dark_theme';
-  static const warm_theme = 'light_theme';
   static const search = 'search';
   static const find = 'find';
   static const replace = 'replace';
@@ -27,8 +24,12 @@ abstract class  LocaleKeys {
   static const about_program = 'about_program';
   static const what_to_find = 'what_to_find';
   static const what_to_replace = 'what_to_replace';
+  static const current_row = 'current_row';
+  static const light_theme = 'light_theme';
+  static const dark_theme = 'dark_theme';
+  static const warm_theme = 'warm_theme';
+  static const syntax_highlighter = 'syntax_highlighter';
   static const reference_text = 'reference_text';
   static const about_program_text = 'about_program_text';
-  static const syntax_highlighter = 'syntax_highlighter';
 
 }
