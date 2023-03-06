@@ -557,6 +557,9 @@ class _HomeState extends ConsumerState<Home> {
                                   controller.text = codeController.text;
                                 },
                                 background: Colors.white24,
+                                textStyle: TextStyle(
+                                  fontFamily: ref.watch(fontProvider),
+                                ),
                               ),
                             ),
                           )
