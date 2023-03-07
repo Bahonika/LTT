@@ -17,6 +17,7 @@ import 'package:highlight/languages/python.dart';
 import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:wrod/custom_theme.dart';
+import 'package:wrod/font_provider.dart';
 import 'package:wrod/theme_provider.dart';
 
 import 'config.dart';
@@ -306,19 +307,6 @@ class _HomeState extends ConsumerState<Home> {
         ),
       );
     }
-    focusNode.requestFocus();
-  }
-
-  Future<void> style() async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            contentPadding: const EdgeInsets.all(8),
-            insetPadding: const EdgeInsets.all(8),
-            title: Row(),
-          );
-        });
     focusNode.requestFocus();
   }
 
