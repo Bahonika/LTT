@@ -17,15 +17,13 @@ dependencies:
   filesystem_picker: ^3.1.0
   file_picker: ^5.2.5
   menu_bar: ^0.4.0
-  intl: ^0.17.0
   flutter_highlight: ^0.7.0
   code_text_field: ^1.0.0
-
   easy_localization: ^3.0.1
   flutter_riverpod: ^2.3.0
   window_manager: ^0.3.1
   bitsdojo_window: ^0.1.5
-  file_saver: ^0.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

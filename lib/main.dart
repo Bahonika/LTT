@@ -4,7 +4,6 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
@@ -493,8 +492,40 @@ class _HomeState extends ConsumerState<Home> {
                 submenu: SubMenu(
                   menuItems: [
                     MenuButton(
-                      onTap: () => style(),
+                      onTap: () => null,
                       text: Text(LocaleKeys.font.tr()),
+                      submenu: SubMenu(
+                        menuItems: [
+                          MenuButton(
+                              onTap: () {
+                                ref
+                                    .read(fontProvider.notifier)
+                                    .setNew('Montserrat');
+                              },
+                              text: const Text('montserrat')),
+                          MenuButton(
+                              onTap: () {
+                                ref
+                                    .read(fontProvider.notifier)
+                                    .setNew('Raleway');
+                              },
+                              text: const Text('raleway')),
+                          MenuButton(
+                              onTap: () {
+                                ref
+                                    .read(fontProvider.notifier)
+                                    .setNew('RobotoMono');
+                              },
+                              text: const Text('roboto_mono')),
+                          MenuButton(
+                              onTap: () {
+                                ref
+                                    .read(fontProvider.notifier)
+                                    .setNew('TimesNewRoman');
+                              },
+                              text: const Text('times_new_roman')),
+                        ],
+                      ),
                     ),
                     MenuButton(
                         onTap: () => null,
@@ -605,6 +636,9 @@ class _HomeState extends ConsumerState<Home> {
                               maxLines: null,
                               minLines: 1,
                               horizontalScroll: true,
+                              textStyle: TextStyle(
+                                fontFamily: ref.watch(fontProvider),
+                              ),
                               isDense: true,
                               onChanged: (str) {
                                 controller.text = codeController.text;
@@ -623,6 +657,9 @@ class _HomeState extends ConsumerState<Home> {
                               textInputAction: TextInputAction.none,
                               maxLines: null,
                               maxLength: null,
+                              style: TextStyle(
+                                fontFamily: ref.watch(fontProvider),
+                              ),
                               onChanged: (str) {
                                 codeController.text = controller.text;
                               },
