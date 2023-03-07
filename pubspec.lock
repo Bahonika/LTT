@@ -17,6 +17,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.10.0"
+  bitsdojo_window:
+    dependency: "direct main"
+    description:
+      name: bitsdojo_window
+      sha256: "1118bc1cd16e6f358431ca4473af57cc1b287d2ceab46dfab6d59a9463160622"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
+  bitsdojo_window_linux:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_linux
+      sha256: d3804a30315fcbb43b28acc86d1180ce0be22c0c738ad2da9e5ade4d8dbd9655
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3"
+  bitsdojo_window_macos:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_macos
+      sha256: d2a9886c74516c5b84c1dd65ab8ee5d1c52055b265ebf0e7d664dee28366b521
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3"
+  bitsdojo_window_platform_interface:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_platform_interface
+      sha256: "65daa015a0c6dba749bdd35a0f092e7a8ba8b0766aa0480eb3ef808086f6e27c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  bitsdojo_window_windows:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_windows
+      sha256: "8766a40aac84a6d7bdcaa716b24997e028fc9a9a1800495fc031721fd5a22ed0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   boolean_selector:
     dependency: transitive
     description:
@@ -138,10 +178,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_file_view
-      sha256: "00717d72dbd9c42c3f77cf78e9c4c539161a0428e89ef06eb2409c278be254c6"
+      sha256: "91d721da8e21ae0c3e063b7f6b2a41e3914e5286e2173b16a8cfe6492b6ea612"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0+1"
+    version: "2.2.1"
   flutter_highlight:
     dependency: "direct main"
     description:
@@ -175,10 +215,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "4bef634684b2c7f3468c77c766c831229af829a0cd2d4ee6c1b99558bd14e5d2"
+      sha256: c224ac897bed083dabf11f238dd11a239809b446740be0c2044608c50029ffdf
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.8"
+    version: "2.0.9"
+  flutter_riverpod:
+    dependency: "direct main"
+    description:
+      name: flutter_riverpod
+      sha256: "40c0d7d03ccd24fa32ea08dcfc4df9bb92c4c26c9a91938945da3be10ed8ca83"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -349,6 +397,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
+  riverpod:
+    dependency: transitive
+    description:
+      name: riverpod
+      sha256: c5aea6c3fed340707f013a023a37ab388bf45611a8a4f7e76b5e9007eb76cd25
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      sha256: "4931f226ca158123ccd765325e9fbf360bfed0af9b460a10f960f9bb13d58323"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
   shared_preferences:
     dependency: transitive
     description:
@@ -426,6 +490,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+  state_notifier:
+    dependency: transitive
+    description:
+      name: state_notifier
+      sha256: "8fe42610f179b843b12371e40db58c9444f8757f8b69d181c97e50787caed289"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.2+1"
   stream_channel:
     dependency: transitive
     description:
@@ -482,6 +554,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.3"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      sha256: "492806c69879f0d28e95472bbe5e8d5940ac8c6e99cc07052fe14946974555ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1"
   xdg_directories:
     dependency: transitive
     description:

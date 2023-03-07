@@ -23,6 +23,9 @@ dependencies:
   code_text_field: ^1.0.0
 
   easy_localization: ^3.0.1
+  flutter_riverpod: ^2.3.0
+  window_manager: ^0.3.1
+  bitsdojo_window: ^0.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -33,3 +36,19 @@ flutter:
   uses-material-design: true
   assets:
     - assets/translations/
+  fonts:
+    - family: Raleway
+      fonts:
+        - asset: fonts/Raleway-Regular.ttf
+        - asset: fonts/Raleway-Bold.ttf
+        - asset: fonts/Raleway-Italic.ttf
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono-Regular.ttf
+        - asset: fonts/RobotoMono-Bold.ttf
+        - asset: fonts/RobotoMono-Italic.ttf
+    - family: TimesNewRoman
+      fonts:
+        - asset: fonts/TimesNewRoman-Regular.ttf
+        - asset: fonts/TimesNewRoman-Italic.ttf
+        - asset: fonts/TimesNewRoman-Bold.ttf

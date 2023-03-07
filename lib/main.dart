@@ -1,6 +1,6 @@
-import 'dart:ffi';
 import 'dart:io';
 
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,6 +8,7 @@ import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
 import 'package:flutter_highlight/themes/mono-blue.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:highlight/highlight.dart';
 import 'package:highlight/languages/java.dart';
 import 'package:highlight/languages/dart.dart';
@@ -15,13 +16,14 @@ import 'package:highlight/languages/python.dart';
 import 'package:highlight/languages/ada.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:wrod/custom_theme.dart';
+import 'package:wrod/font_provider.dart';
+import 'package:wrod/theme_provider.dart';
 
 import 'config.dart';
 import 'generated/codegen_loader.g.dart';
 import 'generated/locale_keys.g.dart';
-import 'package:intl/intl.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   runApp(
@@ -30,20 +32,29 @@ void main() async {
         path: 'assets/translations',
         fallbackLocale: const Locale('ru'),
         assetLoader: const CodegenLoader(),
-        child: const MyApp()),
+        child: const ProviderScope(child: MyApp())),
   );
+  doWhenWindowReady(() {
+    final win = appWindow;
+    const initialSize = Size(1000, 700);
+    win.minSize = initialSize;
+    win.size = initialSize;
+    win.alignment = Alignment.center;
+    win.title = "Custom window with Flutter";
+    win.show();
+  });
 }
 
-
-
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State {
+ThemeData themeData = CustomTheme.lightTheme;
+
+class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
@@ -59,9 +70,7 @@ class _MyAppState extends State {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      theme: CustomTheme.lightTheme,
-      darkTheme: CustomTheme.darkTheme,
-      //warmTheme: CustomTheme.warmTheme,
+      theme: ref.watch(themeProvider),
       themeMode: currentTheme.currentTheme,
       debugShowCheckedModeBanner: false,
       home: const Home(),
@@ -69,11 +78,11 @@ class _MyAppState extends State {
   }
 }
 
-class Home extends StatefulWidget {
+class Home extends ConsumerStatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
 Mode langMapper(String lang) {
@@ -89,7 +98,7 @@ Mode langMapper(String lang) {
   }
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends ConsumerState<Home> {
   final TextEditingController controller = TextEditingController();
   Mode mode = ada;
   int rowNumber = 0;
@@ -97,7 +106,8 @@ class _HomeState extends State<Home> {
   void listen() {
     rowNumber = '\n'
             .allMatches(
-                controller.text.substring(0, controller.selection.baseOffset))
+              controller.text.substring(0, controller.selection.baseOffset),
+            )
             .length +
         1;
     setState(() {});
@@ -105,27 +115,16 @@ class _HomeState extends State<Home> {
 
   void codeListen() {
     rowNumber = '\n'
-            .allMatches(codeController.text
-                .substring(0, codeController.selection.baseOffset))
+            .allMatches(
+              codeController.text
+                  .substring(0, codeController.selection.baseOffset),
+            )
             .length +
         1;
     setState(() {});
   }
 
-  late final CodeController codeController = CodeController(
-    language: mode,
-    patternMap: {
-      r"\B#[a-zA-Z0-9]+\b": const TextStyle(color: Colors.red),
-      r"\B@[a-zA-Z0-9]+\b": const TextStyle(
-        fontWeight: FontWeight.w800,
-        color: Colors.green,
-      ),
-      r"\B![a-zA-Z0-9]+\b":
-          const TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
-    },
-    stringMap: monoBlueTheme,
-    text: controller.text,
-  );
+  late final CodeController codeController;
 
   final FocusNode focusNode = FocusNode();
   late FilePickerResult? result;
@@ -143,9 +142,6 @@ class _HomeState extends State<Home> {
       mode = val;
     }
     codeController.language = mode;
-    // codeController.stringMap?.addAll({
-    //   "void": TextStyle(color: Colors.red)
-    // });
     setState(() {});
   }
 
@@ -153,7 +149,23 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     controller.addListener(listen);
+    codeController = CodeController(
+      language: mode,
+      patternMap: {
+        r"\B#[a-zA-Z0-9]+\b": const TextStyle(color: Colors.red),
+        r"\B@[a-zA-Z0-9]+\b": const TextStyle(
+          fontWeight: FontWeight.w800,
+          color: Colors.green,
+        ),
+        r"\B![a-zA-Z0-9]+\b":
+            const TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
+      },
+      stringMap: monoBlueTheme,
+      text: controller.text,
+    );
+
     codeController.addListener(codeListen);
+
     FlutterFileView.init();
   }
 
@@ -271,19 +283,6 @@ class _HomeState extends State<Home> {
     focusNode.requestFocus();
   }
 
-  Future<void> style() async {
-    await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return SimpleDialog(
-            contentPadding: const EdgeInsets.all(8),
-            insetPadding: const EdgeInsets.all(8),
-            title: Row(),
-          );
-        });
-    focusNode.requestFocus();
-  }
-
   Future<void> insert() async {
     final offset = controller.selection.start;
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -330,251 +329,316 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return MenuBar(
-      menuStyle: MenuStyle(
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      barStyle: BarStyle(
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      barButtonStyle: BarButtonStyle(
-         backgroundColor: Theme.of(context).primaryColor,
-      ),
-      menuButtonStyle: MenuButtonStyle(
-        backgroundColor: Theme.of(context).primaryColor,
-      ),
-      barButtons: [
-        BarButton(
-          text: Text(LocaleKeys.file.tr()),
-          submenu: SubMenu(
-            menuItems: [
-              MenuButton(
-                onTap: () => create(),
-                text: Text(LocaleKeys.new_1.tr()),
-              ),
-              MenuButton(
-                onTap: () => open(),
-                text: Text(LocaleKeys.open.tr()),
-              ),
-              MenuButton(
-                onTap: () => create(),
-                text: Text(LocaleKeys.close.tr()),
-              ),
-              MenuButton(
-                onTap: () {
-                  print(file?.path);
-                  if (file != null) {
-                    save();
-                  } else {
-                    saveAs();
-                  }
-                },
-                text: Text(LocaleKeys.save.tr()),
-              ),
-              MenuButton(
-                onTap: () => saveAs(),
-                text: Text(LocaleKeys.save_as.tr()),
-              ),
-              MenuButton(
-                onTap: () => breakApp(),
-                text: Text(LocaleKeys.exit.tr()),
-              ),
-            ],
+
+    return WindowTitleBarBox(
+      child: Column(
+        children: [
+          Container(
+            color: Theme.of(context).primaryColor,
+            height: 30,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(child: MoveWindow()),
+                MinimizeWindowButton(),
+                MaximizeWindowButton(),
+                CloseWindowButton(),
+              ],
+            ),
           ),
-        ),
-        BarButton(
-          text: Text(LocaleKeys.edit.tr()),
-          submenu: SubMenu(
-            menuItems: [
-              MenuButton(
-                onTap: () => select(),
-                text: Text(LocaleKeys.select_all.tr()),
+          Expanded(
+            child: MenuBar(
+              menuStyle: MenuStyle(
+                backgroundColor: Theme.of(context).primaryColor,
               ),
-              MenuButton(
-                onTap: () => cut(),
-                text: Text(LocaleKeys.cut.tr()),
+              barStyle: BarStyle(
+                backgroundColor: Theme.of(context).primaryColor,
               ),
-              MenuButton(
-                onTap: () => copy(),
-                text: Text(LocaleKeys.copy.tr()),
+              barButtonStyle: BarButtonStyle(
+                backgroundColor: Theme.of(context).primaryColor,
               ),
-              MenuButton(
-                onTap: () => insert(),
-                text: Text(LocaleKeys.paste.tr()),
+              menuButtonStyle: MenuButtonStyle(
+                backgroundColor: Theme.of(context).primaryColor,
               ),
-            ],
-          ),
-        ),
-        BarButton(
-          text: Text(LocaleKeys.view.tr()),
-          submenu: SubMenu(
-            menuItems: [
-              MenuButton(
-                onTap: () => style(),
-                text: Text(LocaleKeys.font.tr()),
-              ),
-              MenuButton(
-                  onTap: () => null,
-                  text: Text(LocaleKeys.design_theme.tr()),
+              barButtons: [
+                BarButton(
+                  text: Text(LocaleKeys.file.tr()),
                   submenu: SubMenu(
                     menuItems: [
                       MenuButton(
-                          onTap: () => currentTheme.toggleLight(),
-                          text: Text(LocaleKeys.light_theme.tr())),
+                        onTap: () => create(),
+                        text: Text(LocaleKeys.new_1.tr()),
+                      ),
                       MenuButton(
-                          onTap: () => currentTheme.toggleDark(),
-                          text: Text(LocaleKeys.dark_theme.tr())),
+                        onTap: () => open(),
+                        text: Text(LocaleKeys.open.tr()),
+                      ),
                       MenuButton(
-                          onTap: () => currentTheme.toggleWarm(),
-                          text: Text(LocaleKeys.warm_theme.tr())),
+                        onTap: () => create(),
+                        text: Text(LocaleKeys.close.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () {
+                          if (file != null) {
+                            save();
+                          } else {
+                            saveAs();
+                          }
+                        },
+                        text: Text(LocaleKeys.save.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () => saveAs(),
+                        text: Text(LocaleKeys.save_as.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () => breakApp(),
+                        text: Text(LocaleKeys.exit.tr()),
+                      ),
                     ],
-                  ))
-            ],
-          ),
-        ),
-        BarButton(
-          text: Text(LocaleKeys.search.tr()),
-          submenu: SubMenu(
-            menuItems: [
-              MenuButton(
-                onTap: () => find(),
-                text: Text(LocaleKeys.find.tr()),
-              ),
-              MenuButton(
-                onTap: () => find(replace: true),
-                text: Text(LocaleKeys.replace.tr()),
-              ),
-            ],
-          ),
-        ),
-        BarButton(
-          text: Text(LocaleKeys.help.tr()),
-          submenu: SubMenu(
-            menuItems: [
-              MenuButton(
-                onTap: () => openHelp(),
-                text: Text(LocaleKeys.reference.tr()),
-              ),
-              MenuButton(
-                onTap: () => openAbout(),
-                text: Text(LocaleKeys.about_program.tr()),
-              ),
-            ],
-          ),
-        ),
-        BarButton(
-          text: Text(LocaleKeys.syntax_highlighter.tr()),
-          submenu: SubMenu(
-            menuItems: [
-              MenuButton(
-                onTap: () => toggle(dart),
-                text: Text(
-                  'dart',
-                  style: TextStyle(
-                    fontWeight:
-                        mode == dart ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
-              ),
-              MenuButton(
-                onTap: () => toggle(java),
-                text: Text(
-                  'java',
-                  style: TextStyle(
-                    fontWeight:
-                        mode == java ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-              ),
-              MenuButton(
-                onTap: () => toggle(python),
-                text: Text(
-                  'python',
-                  style: TextStyle(
-                    fontWeight:
-                        mode == python ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-      child: Scaffold(
-        body: Stack(
-          children: [
-            highlight
-                ? SingleChildScrollView(
-                    child: CodeTheme(
-                      data: const CodeThemeData(styles: monoBlueTheme),
-                      child: CodeField(
-                        controller: codeController,
-                        focusNode: focusNode,
-                        maxLines: null,
-                        minLines: 1,
-                        horizontalScroll: true,
-                        isDense: true,
-                        textStyle: const TextStyle(fontFamily: 'SourceCode'),
-                        onChanged: (str) {
-                          controller.text = codeController.text;
-                        },
-                        background: Colors.white24,
+                BarButton(
+                  text: Text(LocaleKeys.edit.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => select(),
+                        text: Text(LocaleKeys.select_all.tr()),
                       ),
-                    ),
-                  )
-                : Container(
-                    margin: const EdgeInsets.all(20),
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: SingleChildScrollView(
-                      child: TextField(
-                        controller: controller,
-                        textInputAction: TextInputAction.none,
-                        maxLines: null,
-                        maxLength: null,
-                        onChanged: (str) {
-                          codeController.text = controller.text;
-                        },
-                        decoration: const InputDecoration.collapsed(
-                          hintText: '',
+                      MenuButton(
+                        onTap: () => cut(),
+                        text: Text(LocaleKeys.cut.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () => copy(),
+                        text: Text(LocaleKeys.copy.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () => insert(),
+                        text: Text(LocaleKeys.paste.tr()),
+                      ),
+                    ],
+                  ),
+                ),
+                BarButton(
+                  text: Text(LocaleKeys.view.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => null,
+                        text: Text(LocaleKeys.font.tr()),
+                          submenu: SubMenu(
+                            menuItems: [
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('Montserrat');
+                                  },
+                                  text: Text(LocaleKeys.montserrat.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('Raleway');
+                                  },
+                                  text: Text(LocaleKeys.raleway.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('RobotoMono');
+                                  },
+                                  text: Text(LocaleKeys.roboto_mono.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(fontProvider.notifier).setNew('TimesNewRoman');
+                                  },
+                                  text: Text(LocaleKeys.times_new_roman.tr())),
+                            ],
+                          ),
+                      ),
+                      MenuButton(
+                          onTap: () => null,
+                          text: Text(LocaleKeys.design_theme.tr()),
+                          submenu: SubMenu(
+                            menuItems: [
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(themeProvider.notifier).setLight();
+                                  },
+                                  text: Text(LocaleKeys.light_theme.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(themeProvider.notifier).setDark();
+                                  },
+                                  text: Text(LocaleKeys.dark_theme.tr())),
+                              MenuButton(
+                                  onTap: () {
+                                    ref.read(themeProvider.notifier).setWarm();
+                                  },
+                                  text: Text(LocaleKeys.warm_theme.tr())),
+                            ],
+                          ))
+                    ],
+                  ),
+                ),
+                BarButton(
+                  text: Text(LocaleKeys.search.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => find(),
+                        text: Text(LocaleKeys.find.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () => find(replace: true),
+                        text: Text(LocaleKeys.replace.tr()),
+                      ),
+                    ],
+                  ),
+                ),
+                BarButton(
+                  text: Text(LocaleKeys.help.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => openHelp(),
+                        text: Text(LocaleKeys.reference.tr()),
+                      ),
+                      MenuButton(
+                        onTap: () => openAbout(),
+                        text: Text(LocaleKeys.about_program.tr()),
+                      ),
+                    ],
+                  ),
+                ),
+                BarButton(
+                  text: Text(LocaleKeys.syntax_highlighter.tr()),
+                  submenu: SubMenu(
+                    menuItems: [
+                      MenuButton(
+                        onTap: () => toggle(dart),
+                        text: Text(
+                          'dart',
+                          style: TextStyle(
+                            fontWeight: mode == dart
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
                         ),
-                        autofocus: true,
-                        showCursor: true,
-                        focusNode: focusNode,
+                      ),
+                      MenuButton(
+                        onTap: () => toggle(java),
+                        text: Text(
+                          'java',
+                          style: TextStyle(
+                            fontWeight: mode == java
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                      MenuButton(
+                        onTap: () => toggle(python),
+                        text: Text(
+                          'python',
+                          style: TextStyle(
+                            fontWeight: mode == python
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              child: Scaffold(
+                body: Stack(
+                  children: [
+                    highlight
+                        ? SingleChildScrollView(
+                            child: CodeTheme(
+                              data: const CodeThemeData(styles: monoBlueTheme),
+                              child: CodeField(
+                                controller: codeController,
+                                focusNode: focusNode,
+                                maxLines: null,
+                                minLines: 1,
+                                horizontalScroll: true,
+                                isDense: true,
+                                onChanged: (str) {
+                                  controller.text = codeController.text;
+                                },
+                                background: Colors.white24,
+                                textStyle: TextStyle(
+                                  fontFamily: ref.watch(fontProvider),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            margin: const EdgeInsets.all(20),
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
+                            child: SingleChildScrollView(
+                              child: TextField(
+                                controller: controller,
+                                textInputAction: TextInputAction.none,
+                                style: TextStyle(
+                                  fontFamily: ref.watch(fontProvider),
+                                ),
+                                maxLines: null,
+                                maxLength: null,
+                                onChanged: (str) {
+                                  codeController.text = controller.text;
+                                },
+                                decoration: InputDecoration.collapsed(
+                                  hintText: '',
+                                  fillColor:
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                ),
+                                autofocus: true,
+                                showCursor: true,
+                                focusNode: focusNode,
+                              ),
+                            ),
+                          ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(LocaleKeys.current_row.tr()),
+                          Text(
+                            '$rowNumber',
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          const ClockWidget(),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor:
+                                  Theme.of(context).primaryColor, // Text Color
+                            ),
+                            child: Text(context.locale == const Locale('ru')
+                                ? 'ru'
+                                : 'en'),
+                            onPressed: () {
+                              if (context.locale == const Locale('ru')) {
+                                context.setLocale(const Locale('en'));
+                              } else {
+                                context.setLocale(const Locale('ru'));
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('текущая строка:'),
-                  Text(
-                    '$rowNumber',
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  const ClockWidget(),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                  primary: Theme.of(context).primaryColor, // Text Color
+                  ],
                 ),
-                child: Text(context.locale == Locale('ru') ? 'ru' : 'en'),
-                onPressed: () {
-                  if (context.locale == Locale('ru')) {
-                    context.setLocale(Locale('en'));
-                  } else {
-                    context.setLocale(Locale('ru'));
-                  }
-                },),
-                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
