@@ -1,16 +1,30 @@
-# wrod
 
-A new Flutter project.
+## Проект WROD:  текстовый редактор (Лабораторная работа №1)<br>
 
-## Getting Started
+### Краткое описание проекта
+Проект выполнен командой "Левая палочка Твикс" - командой студентов группы 4БПМИ-ПТ ФГБОУ ВО "МАГУ" в рамках дисциплины "Основы разработки кросс-платформенных приложений"<br>
+Результатом работы команды является кроссплатформенное приложение для работы с текстовыми файлами, т.е. редактор текста.<br>
+### Функции
+- Основными разделами меню являются: файл, правка, вид, поиск и справка.
+- Помимо меню в приложении содержится строка состояния с кнопкой смены языка интерфейса (2 языка - английский и русский).
+- В приложении реализован выбор одной из 3 тем оформления редактора и выбор одного из 4 видов шрифтов (1 базовый и 3 на выбор)
+- Также присутствует функция подсветки кода на 3 языках программирования: dart, java и python. <br>
+### Используемые технологии:
+- Язык программирования: dart
+- Фреймворки: flutter 
+### Сторонние библиотеки: 
+- flutter_localization: ^0.1.10
+- path_provider: ^2.0.13
+- file_picker: ^5.2.5
+- flutter_highlight: ^0.7.0
 
-This project is a starting point for a Flutter application.
+- easy_localization: ^3.0.1
+- flutter_riverpod: ^2.3.0
+- window_manager: ^0.3.1
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Инструкции по сборке проекта для нескольких операционных систем: 
+- Для генерации запускаемого файла на Linux необходимо запустить команду `flutter build linux --debug`
+- Для генерации apk файла для Android необходимо запустить команду `flutter build apk --split-per-abi`
+- Для генерации запускаемого приложения для Windows необходимо запустить команду `flutter build windows`
+### Перечень используемых ресурсов: 
+- Шрифты: RelaWay, RobotoMono, Times new roman, Montserrat
