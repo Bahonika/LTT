@@ -34,7 +34,7 @@ Future<void> main() async {
         assetLoader: const CodegenLoader(),
         child: const ProviderScope(child: MyApp())),
   );
-  if (!Platform.isAndroid) {
+  if (!Platform.isAndroid && !Platform.isLinux) {
     doWhenWindowReady(() {
       final win = appWindow;
       const initialSize = Size(1000, 700);
@@ -88,7 +88,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: ref.watch(themeProvider),
       themeMode: currentTheme.currentTheme,
       debugShowCheckedModeBanner: false,
-      home: Platform.isAndroid
+      home: Platform.isAndroid || Platform.isLinux
           ? const Home()
           : WindowTitleBarBox(child: const Home()),
     );
@@ -357,61 +357,66 @@ class _HomeState extends ConsumerState<Home> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Platform.isAndroid
-            ? AppBar(
-                backgroundColor: Theme.of(context).primaryColor,
-                title: const Text('We are on display'),
-              )
-            : Container(
-                color: Theme.of(context).primaryColor,
-                height: 30,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                        child: MoveWindow(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(width: 5),
-                            Icon(
-                              Icons.edit_note_rounded,
-                              color:
-                                  Theme.of(context).textTheme.bodyLarge?.color,
-                            ),
-                            const Text(
-                              'We Are On Display',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
+        if (Platform.isAndroid || Platform.isLinux)
+          Platform.isAndroid
+              ? AppBar(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  title: const Text('We are on display'),
+                )
+              : Platform.isLinux
+                  ? SizedBox()
+                  : Container(
+                      color: Theme.of(context).primaryColor,
+                      height: 30,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Expanded(
+                              child: MoveWindow(
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(width: 5),
+                                  Icon(
+                                    Icons.edit_note_rounded,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.color,
+                                  ),
+                                  const Text(
+                                    'We Are On Display',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    )),
-                    MinimizeWindowButton(
-                      colors: WindowButtonColors(
-                        mouseDown: Colors.black26,
-                        mouseOver: Colors.black12,
+                          )),
+                          MinimizeWindowButton(
+                            colors: WindowButtonColors(
+                              mouseDown: Colors.black26,
+                              mouseOver: Colors.black12,
+                            ),
+                          ),
+                          MaximizeWindowButton(
+                            colors: WindowButtonColors(
+                              mouseDown: Colors.black26,
+                              mouseOver: Colors.black12,
+                            ),
+                          ),
+                          CloseWindowButton(
+                            colors: WindowButtonColors(
+                              mouseDown: Colors.red.withOpacity(0.7),
+                              mouseOver: Colors.red.withOpacity(0.5),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    MaximizeWindowButton(
-                      colors: WindowButtonColors(
-                        mouseDown: Colors.black26,
-                        mouseOver: Colors.black12,
-                      ),
-                    ),
-                    CloseWindowButton(
-                      colors: WindowButtonColors(
-                        mouseDown: Colors.red.withOpacity(0.7),
-                        mouseOver: Colors.red.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
         Expanded(
           child: MenuBar(
             menuStyle: MenuStyle(
