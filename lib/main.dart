@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:code_text_field/code_text_field.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart' hide MenuBar hide MenuStyle;
 import 'package:flutter/services.dart';
 import 'package:flutter_file_view/flutter_file_view.dart';
@@ -217,19 +219,45 @@ class _HomeState extends ConsumerState<Home> {
   }
 
   Future<void> save() async {
-    file!.writeAsStringSync(controller.text);
+    if (Platform.isAndroid) {
+      final list = utf8.encode(controller.text);
+      final bytes = Uint8List.fromList(list);
+      final file = this.file;
+      final name = file!.path.substring(
+        file.path.lastIndexOf('/') + 1,
+      );
+      final temp = await FileSaver.instance.saveAs(
+        name,
+        bytes,
+        'txt',
+        MimeType.TEXT,
+      );
+    } else {
+      file!.writeAsStringSync(controller.text);
+    }
   }
 
   Future<void> saveAs() async {
-    final file = this.file;
-    final temp = await FilePicker.platform.saveFile(
-      initialDirectory: file?.path,
-      allowedExtensions: ['.txt'],
-    );
-    if (temp != null) {
-      final tempFile = file?.copySync(temp) ?? File(temp);
-      tempFile.writeAsStringSync(controller.text);
-      this.file = tempFile;
+    if (Platform.isAndroid) {
+      final list = utf8.encode(controller.text);
+      final bytes = Uint8List.fromList(list);
+      final temp = await FileSaver.instance.saveAs(
+        DateTime.now().toString(),
+        bytes,
+        'txt',
+        MimeType.TEXT,
+      );
+    } else {
+      final file = this.file;
+      final temp = await FilePicker.platform.saveFile(
+        initialDirectory: file?.path,
+        allowedExtensions: ['.txt'],
+      );
+      if (temp != null) {
+        final tempFile = file?.copySync(temp) ?? File(temp);
+        tempFile.writeAsStringSync(controller.text);
+        this.file = tempFile;
+      }
     }
   }
 
